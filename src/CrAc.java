@@ -13,17 +13,16 @@ public class CrAc extends JFrame implements ActionListener{
     JButton back,pr;
     JCheckBox kli;
     Socket socket;
-    boolean KeepLogged;
     CrAc(){
         Container c=this.getContentPane();
         c.setLayout(new FlowLayout());
         jlu=new JLabel("Enter your username");
         jlu.setFont(new Font("nf",Font.BOLD,22));
-        jlu.setBackground(Color.BLUE);
+        jlu.setBackground(Color.CYAN);
         jlu.setOpaque(true);
         jlp=new JLabel("Enter Secure Password");
         jlp.setFont(new Font("nf",Font.BOLD,22));
-        jlp.setBackground(Color.BLUE);
+        jlp.setBackground(Color.CYAN);
         jlp.setOpaque(true);
 
         jtf= new JTextField(20);
@@ -63,6 +62,7 @@ public class CrAc extends JFrame implements ActionListener{
                 socket=new Socket("localhost",4567);
                 System.out.println("Connected");
                 PrintWriter pw=new PrintWriter(socket.getOutputStream(),true);
+                pw.println("Create Account");
                 pw.println(username);
                 pw.println(password);
                 pw.println(Setting_logged);
@@ -72,7 +72,7 @@ public class CrAc extends JFrame implements ActionListener{
                     JOptionPane.showMessageDialog(this,"Username Already Exists, Change Username");
                 }
                 else if("Saved".equals(response)){
-                    JOptionPane.showMessageDialog(this,"Account Created go back and Chat");
+                    JOptionPane.showMessageDialog(this,"Account Created go back and log in");
                 }
             }
             catch (UnknownHostException e){

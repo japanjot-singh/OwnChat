@@ -1,5 +1,4 @@
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 public class Home extends JPanel implements ActionListener {
@@ -43,6 +42,13 @@ public class Home extends JPanel implements ActionListener {
             ca.setSize(500,500);
             ca.setVisible(true);
             ca.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        }
+        if(ae.getSource() == jbl){
+            log fl= new log();
+            fl.setTitle("Log In");
+            fl.setSize(500,500);
+            fl.setVisible(true);
+            fl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
     }
 }
