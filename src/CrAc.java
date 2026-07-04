@@ -60,10 +60,10 @@ public class CrAc extends JFrame implements ActionListener{
                 pw.println(password);
                 BufferedReader br= new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String response=br.readLine();
-                if(response.equals("Exists")){
+                if("Exists".equals(response)){
                     JOptionPane.showMessageDialog(this,"Username Already Exists, Change Username");
                 }
-                else if(response.equals("Saved")){
+                else if("Saved".equals(response)){
                     JOptionPane.showMessageDialog(this,"Account Created go back and Chat");
                 }
             }
