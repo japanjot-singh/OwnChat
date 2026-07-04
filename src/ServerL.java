@@ -22,7 +22,6 @@ class clientHandler implements Runnable{
     Socket socket;
     String euser,epass;
     PrintWriter out;
-    boolean found=false;
     clientHandler(Socket socket,String url,String user,String pass){
         this.socket=socket;
         this.url=url;
@@ -31,6 +30,7 @@ class clientHandler implements Runnable{
     }
 
     public void run(){
+        boolean found=false;
         try{
             System.out.println("Connected");
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
