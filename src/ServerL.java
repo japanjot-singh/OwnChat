@@ -36,6 +36,7 @@ class clientHandler implements Runnable{
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String username = br.readLine();
             String password = br.readLine();
+            String Setting_logged=br.readLine();
 
             Connection con = DriverManager.getConnection(url, user, pass);
             String query = "SELECT USERNAME FROM USER_DETAILS WHERE USERNAME=?";
@@ -59,6 +60,12 @@ class clientHandler implements Runnable{
                 pstmt2.setString(2, password);
                 pstmt2.executeUpdate();
                 out.println("Saved");
+                if("true".equals(Setting_logged)){
+                    String query2="UPDATE SETTINGS SET SETTING_VALUE='TRUE' WHERE SETTING_NAME='KEEP LOGGED IN' AND USERNAME=?";
+                    PreparedStatement pstmt3=con.prepareStatement(query2);
+                    pstmt3.setString(1,username);
+                    pstmt3.executeUpdate();
+                }
             }
 
         } catch (Exception e) {
