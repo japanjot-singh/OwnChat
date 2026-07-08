@@ -22,6 +22,7 @@ class clientHandler implements Runnable{
     Socket socket;
     String euser,epass;
     PrintWriter out;
+    public static String username;
     clientHandler(Socket socket,String url,String user,String pass){
         this.socket=socket;
         this.url=url;
@@ -40,7 +41,7 @@ class clientHandler implements Runnable{
             Connection con = DriverManager.getConnection(url, user, pass);
 
             if("Create Account".equals(action)){
-                String username = br.readLine();
+                username = br.readLine();
                 String password = br.readLine();
                 String Setting_logged=br.readLine();
 
@@ -57,7 +58,7 @@ class clientHandler implements Runnable{
                 }
 
                 if(!found){
-                    String sQuery = "INSERT INTO USER_DETAILS (USERNAME,PASSWORD) VALUES(?,?)";
+                    String sQuery = "INSERT INTO USER_DETAILS (USERNAME,USER_PASSWORD) VALUES(?,?)";
                     PreparedStatement pstmt2 = con.prepareStatement(sQuery);
                     pstmt2.setString(1, username);
                     pstmt2.setString(2, password);
@@ -74,35 +75,38 @@ class clientHandler implements Runnable{
             }
             if ("Log In".equals(action)) {
                 String usernameL = br.readLine();
-                String queryL = "SELECT SETTING_VALUE FROM SETTINGS WHERE USERNAME=? AND SETTING_NAME='KEEP LOGGED IN'";
-                PreparedStatement pstmtl = con.prepareStatement(queryL);
-                pstmtl.setString(1, usernameL);
-                ResultSet rsl = pstmtl.executeQuery();
-                while (rsl.next()) {
-                    if ("TRUE".equals(rsl.getString(1))) {
-                        String querySt="INSERT INTO LOG_STATUS(USERNAME,STATUS) VALUES(?,'LOGGED IN')";
-                        PreparedStatement pstmtST= con.prepareStatement(querySt);
-                        pstmtST.setString(1,usernameL);
-                        pstmtST.executeUpdate();
-                        out.println("Keep logged in");
-                    } else {
-                        out.println("require password");
-                        String psw=br.readLine();
-                        String queryNL="SELECT PASSWORD FROM USER_DETAILS WHERE USERNAME=?";
-                        PreparedStatement pstmtNL=con.prepareStatement(queryNL);
-                        pstmtNL.setString(1,usernameL);
-                        ResultSet rsn=pstmtNL.executeQuery();
-                        while(rsn.next()){
-                            if(psw.equals(rsn.getString("PASSWORD"))){
-                                String queryns="INSERT INTO LOG_STATUS(USERNAME,STATUS) VALUES(?,'LOGGED IN')";
-                                PreparedStatement pstmtns= con.prepareStatement(queryns);
-                                pstmtns.setString(1,usernameL);
-                                pstmtns.executeUpdate();
-                                out.println("Logged in now");
+                if(usernameL.equals(username)){
+                    String queryL = "SELECT SETTING_VALUE FROM SETTINGS WHERE USERNAME=? AND SETTING_NAME='KEEP LOGGED IN'";
+                    PreparedStatement pstmtl = con.prepareStatement(queryL);
+                    pstmtl.setString(1, usernameL);
+                    ResultSet rsl = pstmtl.executeQuery();
+                    while (rsl.next()) {
+                        if ("TRUE".equals(rsl.getString(1))) {
+                            String querySt="INSERT INTO LOG_STATUS(USERNAME,STATUS) VALUES(?,'LOGGED IN')";
+                            PreparedStatement pstmtST= con.prepareStatement(querySt);
+                            pstmtST.setString(1,usernameL);
+                            pstmtST.executeUpdate();
+                            out.println("Keep logged in");
+                        } else {
+                            out.println("require password");
+                            String psw=br.readLine();
+                            String queryNL="SELECT USER_PASSWORD FROM USER_DETAILS WHERE USERNAME=?";
+                            PreparedStatement pstmtNL=con.prepareStatement(queryNL);
+                            pstmtNL.setString(1,usernameL);
+                            ResultSet rsn=pstmtNL.executeQuery();
+                            while(rsn.next()){
+                                if(psw.equals(rsn.getString("PASSWORD"))){
+                                    String queryns="INSERT INTO LOG_STATUS(USERNAME,STATUS) VALUES(?,'LOGGED IN')";
+                                    PreparedStatement pstmtns= con.prepareStatement(queryns);
+                                    pstmtns.setString(1,usernameL);
+                                    pstmtns.executeUpdate();
+                                    out.println("Logged in now");
+                                }
                             }
                         }
                     }
                 }
+
             }
 
         } catch (Exception e) {
