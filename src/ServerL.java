@@ -106,6 +106,9 @@ class clientHandler implements Runnable{
                         }
                     }
                 }
+                else{
+                    out.println("mismatch");
+                }
 
             }
 

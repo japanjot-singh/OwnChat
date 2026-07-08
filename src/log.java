@@ -47,6 +47,9 @@ public class log extends JFrame implements ActionListener{
             pw.println("Log In");
             pw.println(username);
             String response=br.readLine();
+            if("mismatch".equals(response)){
+                JOptionPane.showMessageDialog(this,"Please enter the same username by which you created your account");
+            }
             if("Keep logged in".equals(response)){
                 JOptionPane.showMessageDialog(this,"Logged in Successfully, Go back and Chat");
             }
