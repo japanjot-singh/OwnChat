@@ -40,6 +40,9 @@ public class log extends JFrame implements ActionListener{
     }
     public void sendLG(String username){
         try{
+            if(ClientSession.createdUsername != null && !ClientSession.createdUsername.equals(username)){
+                JOptionPane.showMessageDialog(this,"Please enter the same username by which you created your account");
+                return;}
             socket=new Socket("localhost",4567);
             System.out.println("Connected");
             PrintWriter pw=new PrintWriter(socket.getOutputStream(),true);
@@ -59,6 +62,9 @@ public class log extends JFrame implements ActionListener{
                 String res=br.readLine();
                 if("Logged in now".equals(res)){
                     JOptionPane.showMessageDialog(this,"Logged in Successfully, Go back and Chat");
+                }
+                if("wrong password".equals(res)){
+                    JOptionPane.showMessageDialog(this,"Wrong Password");
                 }
             }
         } catch (Exception e) {
