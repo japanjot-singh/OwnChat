@@ -5,8 +5,9 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 public class log extends JFrame implements ActionListener{
-    JLabel jl;
+    JLabel jl,jlp;
     JTextField ju;
+    JPasswordField jpf;
     JButton jbn,back;
     Socket socket;
 
@@ -16,6 +17,8 @@ public class log extends JFrame implements ActionListener{
 
         jl= new JLabel("Enter Username");
         ju= new JTextField(20);
+        jlp= new JLabel("Enter Passoword");
+        jpf= new JPasswordField(20);
         jbn= new JButton("Next");
         back= new JButton("Back");
 
@@ -24,21 +27,24 @@ public class log extends JFrame implements ActionListener{
 
         c.add(jl);
         c.add(ju);
+        c.add(jlp);
+        c.add(jpf);
         c.add(back);
         c.add(jbn);
     }
     public void actionPerformed(ActionEvent ae){
         if(ae.getSource() == jbn){
             String username=ju.getText();
+            String password=jpf.getPassword().toString();
             new Thread(()->{
-                sendLG(username);
+                sendLG(username,password);
             }).start();
         }
         if(ae.getSource() == back){
             this.dispose();
         }
     }
-    public void sendLG(String username){
+    public void sendLG(String username,String password){
         try{
             if(ClientSession.createdUsername != null && !ClientSession.createdUsername.equals(username)){
                 JOptionPane.showMessageDialog(this,"Please enter the same username by which you created your account");
@@ -49,23 +55,13 @@ public class log extends JFrame implements ActionListener{
             BufferedReader br= new BufferedReader(new InputStreamReader(socket.getInputStream()));
             pw.println("Log In");
             pw.println(username);
+            pw.println(password);
             String response=br.readLine();
-            if("mismatch".equals(response)){
-                JOptionPane.showMessageDialog(this,"Please enter the same username by which you created your account");
-            }
-            if("Keep logged in".equals(response)){
+            if("found".equals(response)){
                 JOptionPane.showMessageDialog(this,"Logged in Successfully, Go back and Chat");
             }
-            if("require password".equals(response)){
-                String ps=JOptionPane.showInputDialog(this,"Enter Password");
-                pw.println(ps);
-                String res=br.readLine();
-                if("Logged in now".equals(res)){
-                    JOptionPane.showMessageDialog(this,"Logged in Successfully, Go back and Chat");
-                }
-                if("wrong password".equals(res)){
-                    JOptionPane.showMessageDialog(this,"Wrong Password");
-                }
+            if("wrong".equals(response)){
+                    JOptionPane.showMessageDialog(this,"Wrong Password or Username");
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -42,7 +42,6 @@ class clientHandler implements Runnable{
             if("Create Account".equals(action)){
                 String username = br.readLine();
                 String password = br.readLine();
-                String Setting_logged=br.readLine();
 
                 String query = "SELECT USERNAME FROM USER_DETAILS WHERE USERNAME=?";
                 PreparedStatement pstmt = con.prepareStatement(query);
@@ -63,46 +62,25 @@ class clientHandler implements Runnable{
                     pstmt2.setString(2, password);
                     pstmt2.executeUpdate();
                     out.println("Saved");
-                    if("true".equals(Setting_logged)){
-                        String query2="UPDATE SETTINGS SET SETTING_VALUE='TRUE' WHERE SETTING_NAME='KEEP LOGGED IN' AND USERNAME=?";
-                        PreparedStatement pstmt3=con.prepareStatement(query2);
-                        pstmt3.setString(1,username);
-                        pstmt3.executeUpdate();
-                    }
                 }
 
             }
             if ("Log In".equals(action)) {
                 String usernameL = br.readLine();
-                String queryL = "SELECT SETTING_VALUE FROM SETTINGS WHERE USERNAME=? AND SETTING_NAME='KEEP LOGGED IN'";
+                String passwordL= br.readLine();
+                String queryL = "SELECT USERNAME,USER_PASSWORD FROM USER_DETAILS WHERE USERNAME=? AND USER_PASSWORD=?";
                 PreparedStatement pstmtl = con.prepareStatement(queryL);
                 pstmtl.setString(1, usernameL);
+                pstmtl.setString(2,passwordL);
                 ResultSet rsl = pstmtl.executeQuery();
                 while (rsl.next()) {
-                    if ("TRUE".equals(rsl.getString(1))) {
-                        String querySt = "INSERT INTO LOG_STATUS(USERNAME,STATUS) VALUES(?,'LOGGED IN')";
-                        PreparedStatement pstmtST = con.prepareStatement(querySt);
-                        pstmtST.setString(1, usernameL);
-                        pstmtST.executeUpdate();
-                        out.println("Keep logged in");
-                    } else {
-                        out.println("require password");
-                        String psw = br.readLine();
-                        String queryNL = "SELECT USER_PASSWORD FROM USER_DETAILS WHERE USERNAME=?";
-                        PreparedStatement pstmtNL = con.prepareStatement(queryNL);
-                        pstmtNL.setString(1, usernameL);
-                        ResultSet rsn = pstmtNL.executeQuery();
-                        while (rsn.next()) {
-                            if (psw.equals(rsn.getString("USER_PASSWORD"))) {
-                                String queryns = "INSERT INTO LOG_STATUS(USERNAME,STATUS) VALUES(?,'LOGGED IN')";
-                                PreparedStatement pstmtns = con.prepareStatement(queryns);
-                                pstmtns.setString(1, usernameL);
-                                pstmtns.executeUpdate();
-                                out.println("Logged in now");
-                            } else {
-                                out.println("wrong password");
-                            }
-                        }
+                    String us=rsl.getString(1);
+                    String ps=rsl.getString(2);
+                    if(usernameL.equals(us) && passwordL.equals(ps)){
+                        out.println("found");
+                    }
+                    else{
+                        out.println("wrong");
                     }
                 }
             }

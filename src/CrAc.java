@@ -11,7 +11,6 @@ public class CrAc extends JFrame implements ActionListener{
     JTextField jtf;
     JPasswordField jpf;
     JButton back,pr;
-    JCheckBox kli;
     Socket socket;
     CrAc(){
         Container c=this.getContentPane();
@@ -31,8 +30,6 @@ public class CrAc extends JFrame implements ActionListener{
         back= new JButton("Back");
         pr= new JButton("Proceed");
 
-        kli=new JCheckBox("Keep me logged in");
-        kli.addActionListener(this);
         back.addActionListener(this);
         pr.addActionListener(this);
 
@@ -42,7 +39,6 @@ public class CrAc extends JFrame implements ActionListener{
         c.add(jpf);
         c.add(back);
         c.add(pr);
-        c.add(kli);
     }
     public void actionPerformed(ActionEvent ae){
         if(ae.getSource() == back){
@@ -51,13 +47,12 @@ public class CrAc extends JFrame implements ActionListener{
         if(ae.getSource() == pr ){
             String us=jtf.getText();
             String ps=new String(jpf.getPassword());
-            String lg=String.valueOf(kli.isSelected());
             new Thread(()->{
-                SendCR(us,ps,lg);
+                SendCR(us,ps);
             }).start();
         }
     }
-    public void SendCR(String username,String password, String Setting_logged) {
+    public void SendCR(String username,String password) {
             try{
                 socket=new Socket("localhost",4567);
                 System.out.println("Connected");
@@ -65,7 +60,6 @@ public class CrAc extends JFrame implements ActionListener{
                 pw.println("Create Account");
                 pw.println(username);
                 pw.println(password);
-                pw.println(Setting_logged);
                 BufferedReader br= new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String response=br.readLine();
                 if("Exists".equals(response)){
