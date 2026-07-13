@@ -46,9 +46,6 @@ public class log extends JFrame implements ActionListener{
     }
     public void sendLG(String username,String password){
         try{
-            if(ClientSession.createdUsername != null && !ClientSession.createdUsername.equals(username)){
-                JOptionPane.showMessageDialog(this,"Please enter the same username by which you created your account");
-                return;}
             socket=new Socket("localhost",4567);
             System.out.println("Connected");
             PrintWriter pw=new PrintWriter(socket.getOutputStream(),true);

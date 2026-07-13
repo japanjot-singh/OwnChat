@@ -66,7 +66,6 @@ public class CrAc extends JFrame implements ActionListener{
                     JOptionPane.showMessageDialog(this,"Username Already Exists, Change Username");
                 }
                 else if("Saved".equals(response)){
-                    ClientSession.createdUsername=username;
                     JOptionPane.showMessageDialog(this,"Account Created go back and log in");
                 }
             }
