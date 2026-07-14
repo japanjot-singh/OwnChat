@@ -5,7 +5,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 public class log extends JFrame implements ActionListener{
-    JLabel jl,jlp;
+    JLabel jl,jlp,jln;
     JTextField ju;
     JPasswordField jpf;
     JButton jbn,back;
@@ -21,12 +21,14 @@ public class log extends JFrame implements ActionListener{
         jpf= new JPasswordField(20);
         jbn= new JButton("Next");
         back= new JButton("Back");
+        jln= new JLabel("                                   ");
 
         jbn.addActionListener(this);
         back.addActionListener(this);
 
         c.add(jl);
         c.add(ju);
+        c.add(jln);
         c.add(jlp);
         c.add(jpf);
         c.add(back);
@@ -35,7 +37,7 @@ public class log extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent ae){
         if(ae.getSource() == jbn){
             String username=ju.getText();
-            String password=jpf.getPassword().toString();
+            String password=new String(jpf.getPassword());
             new Thread(()->{
                 sendLG(username,password);
             }).start();

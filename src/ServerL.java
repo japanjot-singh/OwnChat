@@ -73,17 +73,14 @@ class clientHandler implements Runnable{
                 pstmtl.setString(1, usernameL);
                 pstmtl.setString(2,passwordL);
                 ResultSet rsl = pstmtl.executeQuery();
-                while (rsl.next()) {
-                    String us=rsl.getString(1);
-                    String ps=rsl.getString(2);
-                    if(usernameL.equals(us) && passwordL.equals(ps)){
-                        out.println("found");
-                    }
-                    else{
-                        out.println("wrong");
-                    }
+                if(rsl.next()){
+                    out.println("found");
                 }
-            }
+                else{
+                    out.println("wrong");
+                }
+
+                }
 
         } catch (Exception e) {
             e.printStackTrace();
