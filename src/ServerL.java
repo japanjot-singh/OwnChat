@@ -28,6 +28,9 @@ class clientHandler implements Runnable{
         this.user=user;
         this.pass=pass;
     }
+    public void table_User_details(String username,String password,String query,BufferedReader br,PrintWriter pw){
+
+    }
 
     public void run(){
         boolean found=false;
@@ -74,15 +77,27 @@ class clientHandler implements Runnable{
                 pstmtl.setString(2,passwordL);
                 ResultSet rsl = pstmtl.executeQuery();
                 if(rsl.next()){
+                    String query="INSERT INTO LOG_STATUS(USERNAME,STATUS) VALUES(?,?)";
+                    PreparedStatement pstmt=con.prepareStatement(query);
+                    pstmt.setString(1,usernameL);
+                    pstmt.setString(2,"LOGGED IN");
+                    pstmt.executeUpdate();
                     out.println("found");
+                    clientSession.login(usernameL);
                 }
                 else{
                     out.println("wrong");
                 }
 
-                }
-
-        } catch (Exception e) {
+            }
+            if("SLogOut".equals(action)){
+                String queryu="UPDATE LOG_STATUS SET STATUS='LOGGED OUT' WHERE USERNAME=?";
+                PreparedStatement pstmtu=con.prepareStatement(queryu);
+                pstmtu.setString(1,clientSession.getUsername());
+                pstmtu.executeUpdate();
+            }
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }

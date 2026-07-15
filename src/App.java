@@ -8,7 +8,7 @@ public class App extends JFrame {
         Container c= this.getContentPane();
         jtb= new JTabbedPane();
         jtb.addTab("Home",new Home());
-        jtb.addTab("Settings",new JPanel());
+        jtb.addTab("Settings",new Settings());
         jtb.setSelectedIndex(0);
         c.add(jtb);
     }
