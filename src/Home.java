@@ -50,5 +50,12 @@ public class Home extends JPanel implements ActionListener {
             fl.setVisible(true);
             fl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
+        if(ae.getSource() == jbn){
+            Chat cl= new Chat();
+            cl.setTitle("Chat now");
+            cl.setSize(1200,750);
+            cl.setVisible(true);
+            cl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        }
     }
 }

@@ -88,7 +88,6 @@ class clientHandler implements Runnable{
                 else{
                     out.println("wrong");
                 }
-
             }
             if("SLogOut".equals(action)){
                 String queryu="UPDATE LOG_STATUS SET STATUS='LOGGED OUT' WHERE USERNAME=?";
