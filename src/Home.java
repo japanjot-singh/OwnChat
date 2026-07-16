@@ -1,9 +1,19 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 public class Home extends JPanel implements ActionListener {
     JButton jbc,jbn,jbl;
     ImageIcon ii,ic,it;
+    Socket socket;
+    PrintWriter pw;
+    BufferedReader br;
     Home(){
         setLayout(new GridLayout(1,4,0,25));
 
@@ -51,11 +61,31 @@ public class Home extends JPanel implements ActionListener {
             fl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
         if(ae.getSource() == jbn){
-            Chat cl= new Chat();
-            cl.setTitle("Chat now");
-            cl.setSize(1200,750);
-            cl.setVisible(true);
-            cl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            try{
+                socket=new Socket("localhost",4567);
+                System.out.println("Connected");
+                pw=new PrintWriter(socket.getOutputStream(),true);
+                br= new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                pw.println("Contacts");
+                String res= br.readLine();
+                if("Has contacts".equals(res)){
+
+                }
+                if("No contacts".equals(res)){
+                    Add_Contacts cl= new Add_Contacts();
+                    cl.setTitle("Add Contacts");
+                    cl.setSize(1200,750);
+                    cl.setVisible(true);
+                    cl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                }
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+            catch (IOException ie){
+                ie.printStackTrace();
+            }
+
+
         }
     }
 }
