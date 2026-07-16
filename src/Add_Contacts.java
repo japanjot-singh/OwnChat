@@ -26,26 +26,40 @@ public  class Add_Contacts extends JFrame implements ActionListener {
         c.add(jt2);
         c.add(js);
 
+        js.addActionListener(this);
+
     }
     public void actionPerformed(ActionEvent ae){
         if(ae.getSource() == js){
-            try {
-                socket = new Socket("localhost", 4567);
-                System.out.println("Connected");
-                pw = new PrintWriter(socket.getOutputStream(), true);
-                br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                pw.println("Add Contacts");
-                String cname=jt1.getText();
-                String cip=jt2.getText();
-                pw.println(cname);
-                pw.println(cip);
-                if(br.readLine().equals("Added")){
-                    JOptionPane.showMessageDialog(this,"Contact added");
-                }
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            new Thread(() -> saveContact()).start();
+        }
+    }
+    public void saveContact(){
+        try {
+            socket = new Socket("localhost", 4567);
+            socket.setSoTimeout(10000);
+            System.out.println("Connected");
+            pw = new PrintWriter(socket.getOutputStream(), true);
+            br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pw.println("Add Contacts");
+            String cname=jt1.getText();
+            String cip=jt2.getText();
+            pw.println(clientSession.getUsername());
+            pw.println(cname);
+            pw.println(cip);
+            String response = br.readLine();
+            if("Added".equals(response)){
+                SwingUtilities.invokeLater(() ->
+                        JOptionPane.showMessageDialog(this,"Contact added"));
             }
+            else{
+                SwingUtilities.invokeLater(() ->
+                        JOptionPane.showMessageDialog(this,"Contact was not added"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(this,"Could not save contact"));
         }
     }
 }

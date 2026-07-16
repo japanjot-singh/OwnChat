@@ -57,6 +57,7 @@ public class log extends JFrame implements ActionListener{
             pw.println(password);
             String response=br.readLine();
             if("found".equals(response)){
+                clientSession.login(username);
                 JOptionPane.showMessageDialog(this,"Logged in Successfully, Go back and Chat");
             }
             if("wrong".equals(response)){

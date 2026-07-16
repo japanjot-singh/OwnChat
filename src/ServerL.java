@@ -110,12 +110,15 @@ class clientHandler implements Runnable{
             if("Add Contacts".equals(action)){
                 String querya="INSERT INTO CONTACTS(USERNAME,CONTACT_NAME,CONTACT_IP) VALUES(?,?,?)";
                 PreparedStatement psa= con.prepareStatement(querya);
-                psa.setString(1,clientSession.getUsername());
+                psa.setString(1, br.readLine());
                 psa.setString(2, br.readLine());
                 psa.setString(3,br.readLine());
                 int n=psa.executeUpdate();
-                if(n>1){
+                if(n == 1){
                     out.println("Added");
+                }
+                else{
+                    out.println("Not Added");
                 }
 
             }
