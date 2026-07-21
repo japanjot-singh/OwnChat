@@ -7,7 +7,7 @@ import java.net.*;
 public  class Add_Contacts extends JFrame implements ActionListener {
     JLabel jl1,jl2;
     JTextField jt1,jt2;
-    JButton js;
+    JButton js,back;
     Socket socket;
     PrintWriter pw;
     BufferedReader br;
@@ -19,19 +19,25 @@ public  class Add_Contacts extends JFrame implements ActionListener {
         jt1= new JTextField(20);
         jt2= new JTextField(20);
         js= new JButton("Save");
+        back= new JButton("Back");
 
         c.add(jl1);
         c.add(jl2);
         c.add(jt1);
         c.add(jt2);
+        c.add(back);
         c.add(js);
 
         js.addActionListener(this);
+        back.addActionListener(this);
 
     }
-    public void actionPerformed(ActionEvent ae){
-        if(ae.getSource() == js){
+    public void actionPerformed(ActionEvent ae) {
+        if (ae.getSource() == js) {
             new Thread(() -> saveContact()).start();
+        }
+        if(ae.getSource() == back){
+            this.dispose();
         }
     }
     public void saveContact(){

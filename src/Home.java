@@ -61,31 +61,39 @@ public class Home extends JPanel implements ActionListener {
             fl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
         if(ae.getSource() == jbn){
-            try{
-                socket=new Socket("localhost",4567);
-                System.out.println("Connected");
-                pw=new PrintWriter(socket.getOutputStream(),true);
-                br= new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                pw.println("Contacts");
-                String res= br.readLine();
-                if("Has contacts".equals(res)){
-
-                }
-                if("No contacts".equals(res)){
-                    Add_Contacts cl= new Add_Contacts();
-                    cl.setTitle("Add Contacts");
-                    cl.setSize(1200,750);
-                    cl.setVisible(true);
-                    cl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                }
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
+            new Thread(()->{
+                openList();
+            }).start();
+        }
+    }
+    public void openList(){
+        try{
+            socket=new Socket("localhost",4567);
+            System.out.println("Connected");
+            pw=new PrintWriter(socket.getOutputStream(),true);
+            br= new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pw.println("Contacts");
+            pw.println(clientSession.getUsername());
+            String res= br.readLine();
+            if("Has contacts".equals(res)){
+                Contacts_List clf= new Contacts_List();
+                clf.setTitle("Contacts");
+                clf.setSize(1200,750);
+                clf.setVisible(true);
+                clf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             }
-            catch (IOException ie){
-                ie.printStackTrace();
+            if("No contacts".equals(res)){
+                Add_Contacts cl= new Add_Contacts();
+                cl.setTitle("Add Contacts");
+                cl.setSize(1200,750);
+                cl.setVisible(true);
+                cl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             }
-
-
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        catch (IOException ie){
+            ie.printStackTrace();
         }
     }
 }

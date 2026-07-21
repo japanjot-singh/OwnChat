@@ -98,7 +98,7 @@ class clientHandler implements Runnable{
             if("Contacts".equals(action)){
                 String queryc="SELECT CONTACT_NAME,CONTACT_IP FROM CONTACTS WHERE USERNAME=?";
                 PreparedStatement pstmtc=con.prepareStatement(queryc);
-                pstmtc.setString(1,clientSession.getUsername());
+                pstmtc.setString(1,br.readLine());
                 ResultSet rs= pstmtc.executeQuery();
                 if(rs.next()){
                     out.println("Has contacts");
@@ -121,6 +121,17 @@ class clientHandler implements Runnable{
                     out.println("Not Added");
                 }
 
+            }
+            if("Fetch contacts".equals(action)){
+                String queryf="SELECT CONTACT_NAME,CONTACT_IP FROM CONTACTS WHERE USERNAME=?";
+                PreparedStatement psf= con.prepareStatement(queryf);
+                psf.setString(1,br.readLine());
+                ResultSet rs=psf.executeQuery();
+                while (rs.next()){
+                    out.println(rs.getString("CONTACT_NAME"));
+                    out.println(rs.getString("CONTACT_IP"));
+                }
+                out.println("END");
             }
         }
         catch (Exception e) {
