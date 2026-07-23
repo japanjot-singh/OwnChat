@@ -34,6 +34,7 @@ class clientHandler implements Runnable{
 
     public void run(){
         boolean found=false;
+        boolean lf=false;
         try{
             System.out.println("Connected");
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -76,7 +77,7 @@ class clientHandler implements Runnable{
                 pstmtl.setString(1, usernameL);
                 pstmtl.setString(2,passwordL);
                 ResultSet rsl = pstmtl.executeQuery();
-                if(rsl.next()){
+                while(rsl.next()){
                     String query="INSERT INTO LOG_STATUS(USERNAME,STATUS) VALUES(?,?)";
                     PreparedStatement pstmt=con.prepareStatement(query);
                     pstmt.setString(1,usernameL);
@@ -84,8 +85,10 @@ class clientHandler implements Runnable{
                     pstmt.executeUpdate();
                     out.println("found");
                     clientSession.login(usernameL);
+                    lf=true;
+
                 }
-                else{
+                if(!lf){
                     out.println("wrong");
                 }
             }
