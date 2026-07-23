@@ -136,6 +136,9 @@ class clientHandler implements Runnable{
                 }
                 out.println("END");
             }
+            if("StartChat".equals(action)){
+
+            }
         }
         catch (Exception e) {
             e.printStackTrace();

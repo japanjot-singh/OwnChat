@@ -10,6 +10,7 @@ public class Contacts_List extends JFrame implements ActionListener {
     public JButton jbc, back;
     public JTable jtc;
     public DefaultTableModel model;
+    Object tableValue;
 
     public Contacts_List() {
         Container c = this.getContentPane();
@@ -32,6 +33,32 @@ public class Contacts_List extends JFrame implements ActionListener {
         c.add(jbc, BorderLayout.EAST);
 
         new Thread(this::fetchContactsData).start();
+        jtc.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent me){
+                int r=jtc.rowAtPoint(me.getPoint());
+                int c=jtc.columnAtPoint(me.getPoint());
+                if(r != -1 && c != -1){
+                    tableValue=jtc.getValueAt(r,c);
+                    new Thread(()->{
+                        startChat(tableValue);
+                    }).start();
+
+                }
+            }
+        });
+    }
+    public void startChat(Object TargetIP){
+        try{
+            Socket socket = new Socket("localhost", 4567);
+            PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            pw.println("StartChat");
+            pw.println(clientSession.getUsername());
+            pw.println(TargetIP);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void fetchContactsData() {
@@ -46,7 +73,7 @@ public class Contacts_List extends JFrame implements ActionListener {
             while ((name = br.readLine()) != null) {
                 if ("END".equals(name)) break;
                 String ip = br.readLine();
-                
+
                 String finalName = name;
                 SwingUtilities.invokeLater(() -> model.addRow(new Object[]{finalName, ip}));
             }
