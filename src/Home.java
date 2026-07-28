@@ -51,14 +51,14 @@ public class Home extends JPanel implements ActionListener {
             ca.setTitle("Create Account");
             ca.setSize(500,500);
             ca.setVisible(true);
-            ca.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            ca.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         }
         if(ae.getSource() == jbl){
             log fl= new log();
             fl.setTitle("Log In");
             fl.setSize(500,500);
             fl.setVisible(true);
-            fl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            fl.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         }
         if(ae.getSource() == jbn){
             new Thread(()->{
@@ -82,14 +82,14 @@ public class Home extends JPanel implements ActionListener {
                     clf.setTitle("Contacts");
                     clf.setSize(1200,750);
                     clf.setVisible(true);
-                    clf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    clf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 }
                 if("No contacts".equals(res)){
                     Add_Contacts cl= new Add_Contacts();
                     cl.setTitle("Add Contacts");
                     cl.setSize(1200,750);
                     cl.setVisible(true);
-                    cl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    cl.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 }
             }
             if("not logged in".equals(resp)){

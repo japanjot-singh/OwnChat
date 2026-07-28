@@ -1,7 +1,12 @@
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
-public class Welcome extends JFrame{
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.PrintWriter;
+import java.net.Socket;
+public class Welcome extends JFrame {
     static JProgressBar jpb;
     ImageIcon ii;
     JLabel jlw,jli;
@@ -47,6 +52,19 @@ public class Welcome extends JFrame{
                 fa.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 f.dispose();
             }
+        }
+    }
+    public static void autoLog(){
+        try{
+            Socket socket = new Socket("localhost", 4567);
+            PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+
+            pw.println("SLogOut");
+
+            pw.close();
+            socket.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
