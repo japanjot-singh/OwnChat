@@ -78,10 +78,10 @@ class clientHandler implements Runnable{
                 pstmtl.setString(2,passwordL);
                 ResultSet rsl = pstmtl.executeQuery();
                 while(rsl.next()){
-                    String query="INSERT INTO LOG_STATUS(USERNAME,STATUS) VALUES(?,?)";
+                    String query="UPDATE LOG_STATUS SET STATUS=? WHERE USERNAME=?";
                     PreparedStatement pstmt=con.prepareStatement(query);
-                    pstmt.setString(1,usernameL);
-                    pstmt.setString(2,"LOGGED IN");
+                    pstmt.setString(1,"LOGGED IN");
+                    pstmt.setString(2,usernameL);
                     pstmt.executeUpdate();
                     out.println("found");
                     clientSession.login(usernameL);
