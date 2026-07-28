@@ -99,16 +99,30 @@ class clientHandler implements Runnable{
                 pstmtu.executeUpdate();
             }
             if("Contacts".equals(action)){
-                String queryc="SELECT CONTACT_NAME,CONTACT_IP FROM CONTACTS WHERE USERNAME=?";
-                PreparedStatement pstmtc=con.prepareStatement(queryc);
-                pstmtc.setString(1,br.readLine());
-                ResultSet rs= pstmtc.executeQuery();
-                if(rs.next()){
-                    out.println("Has contacts");
+                String cl="SELECT STATUS FROM LOG_STATUS WHERE USERNAME=?";
+                PreparedStatement pstmtcl=con.prepareStatement(cl);
+                String cuser=br.readLine();
+                pstmtcl.setString(1,cuser);
+                ResultSet rscl= pstmtcl.executeQuery();
+                if(rscl.next()){
+                    if("LOGGED IN".equals(rscl.getString("STATUS"))){
+                        out.println("getting");
+                        String queryc="SELECT CONTACT_NAME,CONTACT_IP FROM CONTACTS WHERE USERNAME=?";
+                        PreparedStatement pstmtc=con.prepareStatement(queryc);
+                        pstmtc.setString(1,cuser);
+                        ResultSet rs= pstmtc.executeQuery();
+                        if(rs.next()){
+                            out.println("Has contacts");
+                        }
+                        else{
+                            out.println("No contacts");
+                        }
+                    }
+                    else{
+                        out.println("not logged in");
+                    }
                 }
-                else{
-                    out.println("No contacts");
-                }
+
             }
             if("Add Contacts".equals(action)){
                 String querya="INSERT INTO CONTACTS(USERNAME,CONTACT_NAME,CONTACT_IP) VALUES(?,?,?)";

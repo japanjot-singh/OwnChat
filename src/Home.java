@@ -74,21 +74,28 @@ public class Home extends JPanel implements ActionListener {
             br= new BufferedReader(new InputStreamReader(socket.getInputStream()));
             pw.println("Contacts");
             pw.println(clientSession.getUsername());
-            String res= br.readLine();
-            if("Has contacts".equals(res)){
-                Contacts_List clf= new Contacts_List();
-                clf.setTitle("Contacts");
-                clf.setSize(1200,750);
-                clf.setVisible(true);
-                clf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            String resp=br.readLine();
+            if("getting".equals(resp)){
+                String res= br.readLine();
+                if("Has contacts".equals(res)){
+                    Contacts_List clf= new Contacts_List();
+                    clf.setTitle("Contacts");
+                    clf.setSize(1200,750);
+                    clf.setVisible(true);
+                    clf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                }
+                if("No contacts".equals(res)){
+                    Add_Contacts cl= new Add_Contacts();
+                    cl.setTitle("Add Contacts");
+                    cl.setSize(1200,750);
+                    cl.setVisible(true);
+                    cl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                }
             }
-            if("No contacts".equals(res)){
-                Add_Contacts cl= new Add_Contacts();
-                cl.setTitle("Add Contacts");
-                cl.setSize(1200,750);
-                cl.setVisible(true);
-                cl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            if("not logged in".equals(resp)){
+                JOptionPane.showMessageDialog(this,"Login first");
             }
+
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
