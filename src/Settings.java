@@ -80,8 +80,12 @@ public class Settings extends JPanel implements ActionListener {
             if("logined".equals(res)){
                 pw.println("change");
                 pw.println(nu);
-                if("Changed".equals(br.readLine())){
+                String r=br.readLine();
+                if("Changed".equals(r)){
                     JOptionPane.showMessageDialog(this,"Username Changed Successfully");
+                }
+                if("username already exists".equals(r)){
+                    JOptionPane.showMessageDialog(this,"Username Already Exists");
                 }
             }
             if("not login".equals(res)){

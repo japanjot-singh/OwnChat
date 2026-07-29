@@ -60,10 +60,11 @@ class clientHandler implements Runnable{
                 }
 
                 if(!found){
-                    String sQuery = "INSERT INTO USER_DETAILS (USERNAME,USER_PASSWORD) VALUES(?,?)";
+                    String sQuery = "INSERT INTO USER_DETAILS (USERNAME,DISPLAY_NAME,USER_PASSWORD) VALUES(?,?,?)";
                     PreparedStatement pstmt2 = con.prepareStatement(sQuery);
                     pstmt2.setString(1, username);
-                    pstmt2.setString(2, password);
+                    pstmt2.setString(2, username);
+                    pstmt2.setString(3, password);
                     pstmt2.executeUpdate();
                     out.println("Saved");
                 }
@@ -163,15 +164,25 @@ class clientHandler implements Runnable{
                 if(rscl.next()){
                     out.println("logined");
                     if("change".equals(br.readLine())){
-                        String cq="UPDATE USER_DETAILS SET USERNAME=? WHERE USERNAME=?";
-                        PreparedStatement pscq=con.prepareStatement(cq);
-                        pscq.setString(1, br.readLine());
-                        pscq.setString(2,cuser);
-                        int n= pscq.executeUpdate();
-                        System.out.println("n=0");
-                        if(n==1){
-                            System.out.println("n=1");
-                            out.println("Changed");
+                        String ch="SELECT * FROM USER_DETAILS WHERE DISPLAY_NAME=?";
+                        PreparedStatement psch= con.prepareStatement(ch);
+                        String newName=br.readLine();
+                        psch.setString(1,newName);
+                        ResultSet rs= psch.executeQuery();
+                        if(rs.next()) {
+                            out.print("Display name already exists");
+                        }
+                        else{
+                            String cq = "UPDATE USER_DETAILS SET DISPLAY_NAME=? WHERE USERNAME=?";
+                            PreparedStatement pscq = con.prepareStatement(cq);
+                            pscq.setString(1, newName);
+                            pscq.setString(2, cuser);
+                            int n = pscq.executeUpdate();
+                            System.out.println("n=0");
+                            if (n == 1) {
+                                System.out.println("n=1");
+                                out.println("Changed");
+                            }
                         }
                     }
                 }
