@@ -63,7 +63,24 @@ public class log extends JFrame implements ActionListener{
             if("wrong".equals(response)){
                     JOptionPane.showMessageDialog(this,"Wrong Password or Username");
             }
+            checkTheme();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public static void checkTheme(){
+        try {
+            Socket socket = new Socket("localhost", 4567);
+            System.out.println("Connected");
+            PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pw.println("Check Theme");
+            pw.println(clientSession.getUsername());
+            String theme= br.readLine();
+            Settings.applyTheme(theme);
+
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
     }

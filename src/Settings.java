@@ -79,26 +79,29 @@ public class Settings extends JPanel implements ActionListener {
             CUser("Change username",nu);
         }
         if(ae.getSource() == cm){
-            applyTheme("Metal");
+            applyTheme("METAL");
         }
         if(ae.getSource() == cd){
-            applyTheme("Dark");
+            applyTheme("DARK");
         }
         if(ae.getSource() == cl){
-            applyTheme("Light");
+            applyTheme("LIGHT");
         }
     }
 
-    public void applyTheme(String theme) {
+    public static void applyTheme(String theme) {
         try {
-            if("Light".equals(theme)){
+            if("LIGHT".equals(theme)){
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                setTheme(theme);
             }
-            else if("Dark".equals(theme)){
+            else if("DARK".equals(theme)){
                 UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+                setTheme(theme);
             }
-            else if("Metal".equals(theme)){
+            else if("METAL".equals(theme)){
                 UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+                setTheme(theme);
             }
 
             for(Window w : Window.getWindows()){
@@ -106,6 +109,21 @@ public class Settings extends JPanel implements ActionListener {
             }
         }
         catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+    public static void setTheme(String value){
+        try {
+            Socket socket = new Socket("localhost", 4567);
+            System.out.println("Connected");
+            PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pw.println("Set Theme");
+            pw.println(value);
+            pw.println(clientSession.getUsername());
+
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
     }

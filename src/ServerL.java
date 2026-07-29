@@ -190,6 +190,22 @@ class clientHandler implements Runnable{
                     out.println("not login");
                 }
             }
+            if("Set Theme".equals(action)){
+                String stt="UPDATE SETTINGS SET SETTING_VALUE=? WHERE SETTING_NAME='THEME' AND USERNAME=?";
+                PreparedStatement pstt= con.prepareStatement(stt);
+                pstt.setString(1,br.readLine());
+                pstt.setString(2,br.readLine());
+                pstt.executeUpdate();
+            }
+            if("Check Theme".equals(action)){
+                String cht="SELECT SETTING_VALUE FROM SETTINGS WHERE SETTING_NAME='THEME' AND USERNAME=?";
+                PreparedStatement ps= con.prepareStatement(cht);
+                ps.setString(1, br.readLine());
+                ResultSet rs= ps.executeQuery();
+                if(rs.next()){
+                    out.println(rs.getString("SETTING_VALUE"));
+                }
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
