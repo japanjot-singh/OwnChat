@@ -1,9 +1,6 @@
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.PrintWriter;
 import java.net.Socket;
 public class Welcome extends JFrame {

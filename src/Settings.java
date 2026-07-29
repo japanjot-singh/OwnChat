@@ -10,39 +10,50 @@ import java.net.*;
 
 public class Settings extends JPanel implements ActionListener {
     JLabel[] labels;
-    JButton jb1,jb2,jb3,jb4,jb5;
+    JButton jb1,jb2;
     Socket socket;
+    JRadioButton cm,cd,cl;
+    ButtonGroup bg;
+    JPanel jp;
     Settings(){
         setLayout(new GridLayout(5,2));
-        labels = new JLabel[5];
+        labels = new JLabel[3];
         labels[0]= new JLabel("Log Out");
         jb1= new JButton("Log out");
-        jb1.addActionListener(this);
         labels[1]= new JLabel("Change username");
         jb2= new JButton("Change username");
         labels[2]= new JLabel("Change theme");
-        jb3= new JButton("Change theme");
-        labels[3]= new JLabel("Change theme");
-        jb4= new JButton("Change theme");
-        labels[4]= new JLabel("Change theme");
-        jb5= new JButton("Change theme");
+        cm= new JRadioButton("Metal");
+        cd= new JRadioButton("Dark");
+        cl= new JRadioButton("Light");
+        bg= new ButtonGroup();
+        bg.add(cm);
+        bg.add(cd);
+        bg.add(cl);
+        cm.addActionListener(this);
+        cd.addActionListener(this);
+        cl.addActionListener(this);
+        jp = new JPanel();
+        jp.add(cm);
+        jp.add(cd);
+        jp.add(cl);
+
         for(JLabel label:labels){
             label.setFont(new Font("nf", Font.BOLD, 22));
             label.setBackground(Color.CYAN);
+            label.setBorder(BorderFactory.createLineBorder(Color.blue,2));
             label.setOpaque(true);
         }
 
         add(labels[0]);
         add(jb1);
+        jb1.addActionListener(this);
         add(labels[1]);
         add(jb2);
         jb2.addActionListener(this);
         add(labels[2]);
-        add(jb3);
-        add(labels[3]);
-        add(jb4);
-        add(labels[4]);
-        add(jb5);
+        add(jp);
+
 
     }
     public void getCon(String message){
@@ -67,7 +78,38 @@ public class Settings extends JPanel implements ActionListener {
             String nu=JOptionPane.showInputDialog(this,"Enter new username");
             CUser("Change username",nu);
         }
+        if(ae.getSource() == cm){
+            applyTheme("Metal");
+        }
+        if(ae.getSource() == cd){
+            applyTheme("Dark");
+        }
+        if(ae.getSource() == cl){
+            applyTheme("Light");
+        }
     }
+
+    public void applyTheme(String theme) {
+        try {
+            if("Light".equals(theme)){
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            }
+            else if("Dark".equals(theme)){
+                UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+            }
+            else if("Metal".equals(theme)){
+                UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+            }
+
+            for(Window w : Window.getWindows()){
+                SwingUtilities.updateComponentTreeUI(w);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
     public void CUser(String message,String nu){
         try{
             socket=new Socket("localhost",4567);
