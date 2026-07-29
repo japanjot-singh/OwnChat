@@ -153,6 +153,32 @@ class clientHandler implements Runnable{
             if("StartChat".equals(action)){
 
             }
+            if("Change username".equals(action)){
+
+                String cl1="SELECT STATUS FROM LOG_STATUS WHERE USERNAME=?";
+                PreparedStatement pstmtcl1=con.prepareStatement(cl1);
+                String cuser=br.readLine();
+                pstmtcl1.setString(1,cuser);
+                ResultSet rscl= pstmtcl1.executeQuery();
+                if(rscl.next()){
+                    out.println("logined");
+                    if("change".equals(br.readLine())){
+                        String cq="UPDATE USER_DETAILS SET USERNAME=? WHERE USERNAME=?";
+                        PreparedStatement pscq=con.prepareStatement(cq);
+                        pscq.setString(1, br.readLine());
+                        pscq.setString(2,cuser);
+                        int n= pscq.executeUpdate();
+                        System.out.println("n=0");
+                        if(n==1){
+                            System.out.println("n=1");
+                            out.println("Changed");
+                        }
+                    }
+                }
+                else {
+                    out.println("not login");
+                }
+            }
         }
         catch (Exception e) {
             e.printStackTrace();

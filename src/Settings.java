@@ -18,8 +18,8 @@ public class Settings extends JPanel implements ActionListener {
         labels[0]= new JLabel("Log Out");
         jb1= new JButton("Log out");
         jb1.addActionListener(this);
-        labels[1]= new JLabel("Change theme");
-        jb2= new JButton("Change theme");
+        labels[1]= new JLabel("Change username");
+        jb2= new JButton("Change username");
         labels[2]= new JLabel("Change theme");
         jb3= new JButton("Change theme");
         labels[3]= new JLabel("Change theme");
@@ -36,6 +36,7 @@ public class Settings extends JPanel implements ActionListener {
         add(jb1);
         add(labels[1]);
         add(jb2);
+        jb2.addActionListener(this);
         add(labels[2]);
         add(jb3);
         add(labels[3]);
@@ -62,5 +63,36 @@ public class Settings extends JPanel implements ActionListener {
         if(ae.getSource() == jb1){
             getCon("SLogOut");
         }
+        if(ae.getSource() == jb2){
+            String nu=JOptionPane.showInputDialog(this,"Enter new username");
+            CUser("Change username",nu);
+        }
+    }
+    public void CUser(String message,String nu){
+        try{
+            socket=new Socket("localhost",4567);
+            System.out.println("Connected");
+            PrintWriter pw=new PrintWriter(socket.getOutputStream(),true);
+            BufferedReader br= new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pw.println(message);
+            pw.println(clientSession.getUsername());
+            String res= br.readLine();
+            if("logined".equals(res)){
+                pw.println("change");
+                pw.println(nu);
+                if("Changed".equals(br.readLine())){
+                    JOptionPane.showMessageDialog(this,"Username Changed Successfully");
+                }
+            }
+            if("not login".equals(res)){
+                JOptionPane.showMessageDialog(this,"Login first");
+            }
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        catch (IOException ie){
+            ie.printStackTrace();
+        }
+
     }
 }
