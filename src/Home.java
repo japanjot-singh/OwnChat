@@ -78,11 +78,7 @@ public class Home extends JPanel implements ActionListener {
             if("getting".equals(resp)){
                 String res= br.readLine();
                 if("Has contacts".equals(res)){
-                    Contacts_List clf= new Contacts_List();
-                    clf.setTitle("Contacts");
-                    clf.setSize(1200,750);
-                    clf.setVisible(true);
-                    clf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    openClist(true);
                 }
                 if("No contacts".equals(res)){
                     Add_Contacts cl= new Add_Contacts();
@@ -102,5 +98,12 @@ public class Home extends JPanel implements ActionListener {
         catch (IOException ie){
             ie.printStackTrace();
         }
+    }
+    public static void openClist(boolean value){
+        Contacts_List clf= new Contacts_List();
+        clf.setTitle("Contacts");
+        clf.setSize(1200,750);
+        clf.setVisible(value);
+        clf.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 }

@@ -40,7 +40,7 @@ public class Settings extends JPanel implements ActionListener {
 
         for(JLabel label:labels){
             label.setFont(new Font("nf", Font.BOLD, 22));
-            label.setBackground(Color.CYAN);
+            label.setBackground(Color.GRAY);
             label.setBorder(BorderFactory.createLineBorder(Color.blue,2));
             label.setOpaque(true);
         }
