@@ -39,9 +39,9 @@ public class Settings extends JPanel implements ActionListener {
         jp.add(cl);
 
         for(JLabel label:labels){
-            label.setFont(new Font("nf", Font.BOLD, 22));
+            label.setFont(new Font("nf", Font.BOLD, 18));
             label.setBackground(Color.GRAY);
-            label.setBorder(BorderFactory.createLineBorder(Color.blue,2));
+            label.setBorder(BorderFactory.createLineBorder(Color.BLACK,2));
             label.setOpaque(true);
         }
 

@@ -17,11 +17,11 @@ public class CrAc extends JFrame implements ActionListener{
         c.setLayout(new FlowLayout());
         jlu=new JLabel("Enter your username");
         jlu.setFont(new Font("nf",Font.BOLD,22));
-        jlu.setForeground(Color.lightGray);
+        jlu.setForeground(Color.BLACK);
         jlu.setOpaque(true);
         jlp=new JLabel("Enter Secure Password");
         jlp.setFont(new Font("nf",Font.BOLD,22));
-        jlp.setForeground(Color.lightGray);
+        jlp.setForeground(Color.BLACK);
         jlp.setOpaque(true);
 
         jtf= new JTextField(20);

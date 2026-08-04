@@ -83,7 +83,7 @@ public class Home extends JPanel implements ActionListener {
                 if("No contacts".equals(res)){
                     Add_Contacts cl= new Add_Contacts();
                     cl.setTitle("Add Contacts");
-                    cl.setSize(1200,750);
+                    cl.setSize(500,500);
                     cl.setVisible(true);
                     cl.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 }
