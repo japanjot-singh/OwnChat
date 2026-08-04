@@ -15,15 +15,21 @@ public  class Add_Contacts extends JFrame implements ActionListener {
         Container c= this.getContentPane();
         c.setLayout(new FlowLayout());
         jl1= new JLabel("Enter name");
+        jl1.setFont(new Font("nf", Font.BOLD, 22));
+        jl1.setForeground(Color.BLACK);
+        jl1.setOpaque(true);
         jl2= new JLabel("Enter IP Address");
+        jl2.setFont(new Font("nf", Font.BOLD, 22));
+        jl2.setForeground(Color.BLACK);
+        jl2.setOpaque(true);
         jt1= new JTextField(20);
         jt2= new JTextField(20);
         js= new JButton("Save");
         back= new JButton("Back");
 
         c.add(jl1);
-        c.add(jl2);
         c.add(jt1);
+        c.add(jl2);
         c.add(jt2);
         c.add(back);
         c.add(js);
