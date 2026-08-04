@@ -57,6 +57,7 @@ public class Welcome extends JFrame {
             PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
 
             pw.println("SLogOut");
+            pw.println(clientSession.getUsername());
 
             pw.close();
             socket.close();

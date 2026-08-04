@@ -63,6 +63,7 @@ public class Settings extends JPanel implements ActionListener {
             PrintWriter pw=new PrintWriter(socket.getOutputStream(),true);
             BufferedReader br= new BufferedReader(new InputStreamReader(socket.getInputStream()));
             pw.println(message);
+            pw.println(clientSession.getUsername());
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -73,6 +74,7 @@ public class Settings extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent ae){
         if(ae.getSource() == jb1){
             getCon("SLogOut");
+
         }
         if(ae.getSource() == jb2){
             String nu=JOptionPane.showInputDialog(this,"Enter new username");

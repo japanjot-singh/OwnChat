@@ -141,8 +141,9 @@ class clientHandler implements Runnable {
         }
         if ("SLogOut".equals(action)) {
             String queryu = "UPDATE LOG_STATUS SET STATUS='LOGGED OUT' WHERE USERNAME=?";
+            String ul=br.readLine();
             PreparedStatement pstmtu = con.prepareStatement(queryu);
-            pstmtu.setString(1, clientSession.getUsername());
+            pstmtu.setString(1, ul);
             pstmtu.executeUpdate();
         }
         if ("Contacts".equals(action)) {
