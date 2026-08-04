@@ -17,7 +17,7 @@ public class Home extends JPanel implements ActionListener {
     Home(){
         setLayout(new GridLayout(1,4,0,25));
 
-        ImageIcon io3= new ImageIcon("ChatGPT Image Jun 4, 2026, 12_12_34 AM.png");
+        ImageIcon io3= new ImageIcon("log in.png");
         Image ig3=io3.getImage();
         Image is3= ig3.getScaledInstance(240,120,Image.SCALE_SMOOTH);
         it= new ImageIcon(is3);
@@ -26,7 +26,7 @@ public class Home extends JPanel implements ActionListener {
         jbl.addActionListener(this);
         add(jbl);
 
-        ImageIcon io= new ImageIcon("ChatGPT Image Jun 3, 2026, 01_32_36 PM.png");
+        ImageIcon io= new ImageIcon("crac.png");
         Image ig= io.getImage();
         Image is= ig.getScaledInstance(240,120,Image.SCALE_SMOOTH);
         ii= new ImageIcon(is);
@@ -36,7 +36,7 @@ public class Home extends JPanel implements ActionListener {
         add(jbc);
         jbc.addActionListener(this);
 
-        ImageIcon io2= new ImageIcon("ChatGPT Image Jun 3, 2026, 01_43_51 PM.png");
+        ImageIcon io2= new ImageIcon("chat now.png");
         Image ig2=io2.getImage();
         Image is2= ig2.getScaledInstance(240,120,Image.SCALE_SMOOTH);
         ic= new ImageIcon(is2);

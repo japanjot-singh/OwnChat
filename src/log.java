@@ -21,7 +21,7 @@ public class log extends JFrame implements ActionListener{
         jpf= new JPasswordField(20);
         jbn= new JButton("Next");
         back= new JButton("Back");
-        jln= new JLabel("                                   ");
+        jln= new JLabel("                                    ");
 
         jbn.addActionListener(this);
         back.addActionListener(this);
