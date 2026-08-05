@@ -60,7 +60,14 @@ class clientHandler implements Runnable {
                         PrintWriter targetOut= chatUsers.get(targetUser);
                         if(targetOut != null){
                             targetOut.println(msgLine);
+                            String qch="INSERT INTO CHAT_HISTORY(SENDER,MESSAGE,RECIEVER) VALUES(?,?,?)";
+                            PreparedStatement psch= con.prepareStatement(qch);
+                            psch.setString(1,currentUser);
+                            psch.setString(2,msgLine);
+                            psch.setString(3,targetUser);
+                            psch.executeUpdate();
                         }
+
                     }
             } else {
                 ohterOPS(action);

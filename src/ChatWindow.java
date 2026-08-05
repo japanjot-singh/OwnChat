@@ -96,18 +96,6 @@ public class ChatWindow extends JFrame implements ActionListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    /*public static void main(String args[]){
-        try{
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-            ChatWindow ch= new ChatWindow();
-            ch.setSize(500,500);
-            ch.setVisible(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-    }*/
     }
     public void startRecieving() throws IOException{
         new Thread(()->{
