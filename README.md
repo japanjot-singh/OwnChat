@@ -3,6 +3,7 @@ A Decentralized Chat Application for Desktops (client->Server->client) using Jav
 
 ## Features
 
+- It is Decentralized, every chat of you or your organization stays within the server on your machine
 - Create user accounts
 - Log in and log out
 - Save contacts
@@ -32,6 +33,12 @@ src/
 ## Database Schema
 
 <img width="1536" height="1024" alt="DB schema" src="https://github.com/user-attachments/assets/12605fb1-5ff9-4084-b897-36e2038e270c" />
+
+## At a Glance
+
+### Welcome Screen
+<img width="1779" height="1113" alt="Screenshot 2026-08-04 222154" src="https://github.com/user-attachments/assets/925c6ac1-4e85-449f-9c2a-6c57965e6bde" />
+
 
 
 
