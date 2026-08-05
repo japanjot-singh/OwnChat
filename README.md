@@ -14,7 +14,7 @@ A Decentralized Chat Application for Desktops (client->Server->client) using Jav
 
 ## Database Schema
 
-<img width="1536" height="1024" alt="DB schema" src="https://github.com/user-attachments/assets/12605fb1-5ff9-4084-b897-36e2038e270c" />
+<img width="1536" height="1024" alt="ChatGPT Image Aug 6, 2026, 01_18_21 AM" src="https://github.com/user-attachments/assets/f76ffa2f-7d2e-4a45-81f5-5a1569dd7851" />
 
 ## At a Glance
 
