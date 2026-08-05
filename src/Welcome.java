@@ -13,7 +13,7 @@ public class Welcome extends JFrame {
         jpb= new JProgressBar(0,100);
         jpb.setStringPainted(true);
         jpb.setForeground(Color.BLUE);
-        ImageIcon original = new ImageIcon("logo.png");
+        ImageIcon original = new ImageIcon(getClass().getResource("/images/logo.png"));
         Image scaled = original.getImage().getScaledInstance(560, 560, Image.SCALE_SMOOTH);
         ii = new ImageIcon(scaled);
         jlw= new JLabel("Welcome !");
