@@ -42,6 +42,9 @@ src/
 ### Home
 <img width="1775" height="1114" alt="Screenshot 2026-08-04 222237" src="https://github.com/user-attachments/assets/7511d2c5-5771-455c-908a-e32888cd8387" />
 
+### Settings
+<img width="888" height="553" alt="image" src="https://github.com/user-attachments/assets/ff05b1ee-d4e6-4cc1-8c63-0dac2ca3761e" />
+
 ### Create Account
 <img width="730" height="733" alt="Screenshot 2026-08-04 222452" src="https://github.com/user-attachments/assets/5a5c3cec-9ea0-4784-870a-077952aaddbb" />
 
@@ -57,7 +60,14 @@ src/
 ### Chat Window
 <img width="1278" height="765" alt="Screenshot 2026-08-04 223313" src="https://github.com/user-attachments/assets/10211cc3-83bb-4d5f-acd3-daa26da57380" />
 
+<img width="1275" height="767" alt="Screenshot 2026-08-04 223335" src="https://github.com/user-attachments/assets/2bc801a8-256b-444f-97e1-ddc38caab34d" />
+
 ## How to Setup
+- Copy code
+- Make server any machine you want then run ServerL.java on that Machine
+- Also save and compile other files
+- In ItelliJ go to:
+- File -> 
 
 
 
