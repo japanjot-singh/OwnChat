@@ -47,6 +47,7 @@ A Decentralized Chat Application for Desktops (client->Server->client) using Jav
 ### Server
 
 <img width="365" height="372" alt="image" src="https://github.com/user-attachments/assets/5e16606b-294f-40d4-97d8-53dd3555947d" />
+
 ## Project Structure
 
 | File | Purpose |
