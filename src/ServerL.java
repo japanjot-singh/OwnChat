@@ -14,6 +14,7 @@ public class ServerL extends JFrame implements ActionListener{
     JTextField jtf1,jtf2;
     JButton jb;
     static String user,pass;
+    StatusPanel statusPanel;
     ServerL(){
         Container c= this.getContentPane();
         setLayout(new FlowLayout());
@@ -26,11 +27,14 @@ public class ServerL extends JFrame implements ActionListener{
         jb= new JButton("SET");
         jb.addActionListener(this);
 
+        statusPanel = new StatusPanel();
+
         c.add(jl1);
         c.add(jtf1);
         c.add(jl2);
         c.add(jtf2);
         c.add(jb);
+        c.add(statusPanel);
 
     }
     public void actionPerformed(ActionEvent ae){
@@ -39,16 +43,18 @@ public class ServerL extends JFrame implements ActionListener{
             pass=jtf2.getText();
         }
     }
+
     public static void main(String args[]){
         try{
             ServerL sl= new ServerL();
             sl.setSize(500,500);
             sl.setTitle("Server");
             sl.setVisible(true);
+            sl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             ServerSocket ss= new ServerSocket(4567);
             while (true){
                 Socket clientSocket= ss.accept();
-                clientHandler handler= new clientHandler(clientSocket,"jdbc:oracle:thin:@localhost:1521:xe",user,pass);
+                clientHandler handler= new clientHandler(clientSocket,"jdbc:oracle:thin:@localhost:1521:xe",user,pass,sl.statusPanel);
                 Thread thread= new Thread(handler);
                 thread.start();
             }
@@ -57,26 +63,51 @@ public class ServerL extends JFrame implements ActionListener{
         }
     }
 }
+class StatusPanel extends JPanel
+{
+    public StatusPanel() {
+        setPreferredSize(new Dimension(400, 150));}
+
+    private boolean isRunning = false;
+
+    public void setRunning(boolean running) {
+        this.isRunning = running;
+        repaint();
+    }
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if (isRunning) {
+            g.setFont(new Font("Arial", Font.BOLD, 22));
+            g.setColor(new Color(0, 128, 0)); // Green text
+            g.drawString("Server is Running...", 80, 80);
+        }
+        }
+
+}
 class clientHandler implements Runnable {
     String url, user, pass;
     Socket socket;
     String euser, epass;
+    StatusPanel statusPanel;
     PrintWriter out;
     Connection con;
     BufferedReader br;
     static Map<String, PrintWriter> chatUsers = new ConcurrentHashMap<>();
 
-    clientHandler(Socket socket, String url, String user, String pass) {
+    clientHandler(Socket socket, String url, String user, String pass,StatusPanel statusPanel) {
         this.socket = socket;
         this.url = url;
         this.user = user;
         this.pass = pass;
+        this.statusPanel = statusPanel;
     }
 
     public void run() {
         String currentUser=null;
         try {
             System.out.println("Connected");
+            if (statusPanel != null) SwingUtilities.invokeLater(() -> statusPanel.setRunning(true));
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
 
@@ -125,9 +156,7 @@ class clientHandler implements Runnable {
             }
         }
     }
-    public void paint(Graphics g){
-        g.drawString("Server is running now",250,250);
-    }
+
 
     public void ohterOPS(String action) throws Exception {
         boolean found = false;
