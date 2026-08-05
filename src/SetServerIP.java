@@ -23,6 +23,7 @@ public class SetServerIP extends JPanel implements ActionListener {
         if (ae.getSource() ==jb){
             new Thread (()->{
                 ip=jtf.getText();
+                JOptionPane.showMessageDialog(this,"Set Successfully");
             }).start();
         }
     }
