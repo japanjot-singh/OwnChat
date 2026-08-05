@@ -47,8 +47,21 @@ A Decentralized Chat Application for Desktops (client->Server->client) using Jav
 ### Server
 
 <img width="365" height="372" alt="image" src="https://github.com/user-attachments/assets/5e16606b-294f-40d4-97d8-53dd3555947d" />
-
-
+## Project Structure
+##File	              ##Purpose
+-Welcome.java	        -Splash screen with a loading bar; entry point (main) that launches App. Also handles auto-logout on exit.
+-App.java	            -Main application window; hosts a JTabbedPane with Home, Settings, and Set Server tabs.
+-Home.java           	-Landing tab — Log In, Create Account, and Chat Now actions; checks whether the user has contacts before opening                               -chat/contacts list.
+-log.java	            -Login form; sends credentials to the server and applies the user's saved theme on success.
+-CrAc.java	          -Create-account form.
+-SetServerIP.java	    -Lets the user configure the server's IP address (stored statically for all socket calls).
+-Settings.java	      -Log out, change username, and change theme (Metal/Dark/Light).
+-Add_Contacts.java	  -Form to add a new contact for the logged-in user.
+-Contacts_List.java	  -Displays the user's contacts in a JTable; lets the user check status and start a chat.
+-ChatWindow.java	     -Two-pane chat UI (send/receive) that connects to the server and streams messages in a background thread.
+-clientSession.java	   -Static holder for the current client-side session (username, logged-in flag).
+-ServerL.java	         -Server entry point: GUI for DB credentials + status panel, ServerSocket accept loop, and clientHandler — the per-                              -connection request router and all DB operations.
+-OwnChatDB.sql	        -Oracle schema: USER_DETAILS, SETTINGS, LOG_STATUS, CONTACTS, CHAT_HISTORY, plus triggers that seed default                                    -settings/log status when a user is created.
 
 
 
