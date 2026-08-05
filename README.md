@@ -12,24 +12,6 @@ A Decentralized Chat Application for Desktops (client->Server->client) using Jav
 - Change the Swing look and feel from Settings
 - Multiple users can chat at the same time
 
-## Project Structure
-
-```text
-src/
-  Welcome.java          App start screen
-  App.java              Main tabbed application window
-  Home.java             Home tab with login/create/contact actions
-  CrAc.java             Create account form
-  log.java              Login form
-  Settings.java         Logout, username, and theme settings
-  Add_Contacts.java     Add contact form
-  Contacts_List.java    Saved contacts table
-  ChatWindow.java       Chat UI and chat socket connection
-  clientSession.java    Current client login state
-  ServerL.java          Socket server and database operations
-  OwnChatDB.sql         Oracle database table/trigger setup
-```
-
 ## Database Schema
 
 <img width="1536" height="1024" alt="DB schema" src="https://github.com/user-attachments/assets/12605fb1-5ff9-4084-b897-36e2038e270c" />
@@ -40,10 +22,10 @@ src/
 <img width="1779" height="1113" alt="Screenshot 2026-08-04 222154" src="https://github.com/user-attachments/assets/925c6ac1-4e85-449f-9c2a-6c57965e6bde" />
 
 ### Home
-<img width="1775" height="1114" alt="Screenshot 2026-08-04 222237" src="https://github.com/user-attachments/assets/7511d2c5-5771-455c-908a-e32888cd8387" />
+<img width="888" height="557" alt="Screenshot 2026-08-06 005143" src="https://github.com/user-attachments/assets/cc25ec9e-9bf1-449e-ac47-378bba18196f" />
 
 ### Settings
-<img width="888" height="553" alt="image" src="https://github.com/user-attachments/assets/ff05b1ee-d4e6-4cc1-8c63-0dac2ca3761e" />
+<img width="888" height="554" alt="setting" src="https://github.com/user-attachments/assets/b28391cd-8e10-4e3f-8b09-03e30438abcc" />
 
 ### Create Account
 <img width="730" height="733" alt="Screenshot 2026-08-04 222452" src="https://github.com/user-attachments/assets/5a5c3cec-9ea0-4784-870a-077952aaddbb" />
@@ -55,19 +37,17 @@ src/
 <img width="727" height="729" alt="Screenshot 2026-08-05 225450" src="https://github.com/user-attachments/assets/0265bdf3-7be9-4204-9eeb-fee45571dab5" />
 
 ### Contacts List
-
+<img width="889" height="560" alt="image" src="https://github.com/user-attachments/assets/72b53cc5-adf0-4551-ab85-86d0f4fdef87" />
 
 ### Chat Window
 <img width="1278" height="765" alt="Screenshot 2026-08-04 223313" src="https://github.com/user-attachments/assets/10211cc3-83bb-4d5f-acd3-daa26da57380" />
 
 <img width="1275" height="767" alt="Screenshot 2026-08-04 223335" src="https://github.com/user-attachments/assets/2bc801a8-256b-444f-97e1-ddc38caab34d" />
 
-## How to Setup
-- Copy code
-- Make server any machine you want then run ServerL.java on that Machine
-- Also save and compile other files
-- In ItelliJ go to:
-- File -> 
+### Server
+
+<img width="365" height="372" alt="image" src="https://github.com/user-attachments/assets/5e16606b-294f-40d4-97d8-53dd3555947d" />
+
 
 
 
