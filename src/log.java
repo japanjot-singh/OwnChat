@@ -17,7 +17,7 @@ public class log extends JFrame implements ActionListener{
 
         jl= new JLabel("Enter Username");
         ju= new JTextField(20);
-        jlp= new JLabel("Enter Passoword");
+        jlp= new JLabel("Enter Password");
         jpf= new JPasswordField(20);
         jbn= new JButton("Next");
         back= new JButton("Back");

@@ -16,7 +16,7 @@ public class Settings extends JPanel implements ActionListener {
     ButtonGroup bg;
     JPanel jp;
     Settings(){
-        setLayout(new GridLayout(5,2));
+        setLayout(new GridLayout(3,2));
         labels = new JLabel[3];
         labels[0]= new JLabel("Log Out");
         jb1= new JButton("Log out");
@@ -40,8 +40,7 @@ public class Settings extends JPanel implements ActionListener {
 
         for(JLabel label:labels){
             label.setFont(new Font("nf", Font.BOLD, 18));
-            label.setBackground(Color.GRAY);
-            label.setBorder(BorderFactory.createLineBorder(Color.BLACK,2));
+            label.setBorder(BorderFactory.createLineBorder(Color.GRAY,4));
             label.setOpaque(true);
         }
 

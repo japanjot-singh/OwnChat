@@ -35,7 +35,7 @@ public class ChatWindow extends JFrame implements ActionListener {
         jbs = new JButton("Send");
         jbs.setBorder(BorderFactory.createLineBorder(Color.GRAY, 4));
         jbs.addActionListener(this);
-        jbr = new JButton("Recieve");
+        jbr = new JButton("Receive");
         jbr.setBorder(BorderFactory.createLineBorder(Color.GRAY, 4));
         jbr.addActionListener(this);
         back = new JButton("Back");
