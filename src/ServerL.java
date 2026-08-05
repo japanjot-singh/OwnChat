@@ -5,13 +5,50 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentHashMap.*;
-public class ServerL{
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.net.Socket;
+public class ServerL extends JFrame implements ActionListener{
+    JLabel jl1,jl2;
+    JTextField jtf1,jtf2;
+    JButton jb;
+    static String user,pass;
+    ServerL(){
+        Container c= this.getContentPane();
+        setLayout(new FlowLayout());
+        jl1= new JLabel("Enter DB Username");
+        jl2= new JLabel("Enter DB Password");
+
+        jtf1= new JTextField(30);
+        jtf2= new JTextField(30);
+
+        jb= new JButton("SET");
+        jb.addActionListener(this);
+
+        c.add(jl1);
+        c.add(jtf1);
+        c.add(jl2);
+        c.add(jtf2);
+        c.add(jb);
+
+    }
+    public void actionPerformed(ActionEvent ae){
+        if(ae.getSource() ==jb ){
+            user=jtf1.getText();
+            pass=jtf2.getText();
+        }
+    }
     public static void main(String args[]){
         try{
+            ServerL sl= new ServerL();
+            sl.setSize(500,500);
+            sl.setTitle("Server");
+            sl.setVisible(true);
             ServerSocket ss= new ServerSocket(4567);
             while (true){
                 Socket clientSocket= ss.accept();
-                clientHandler handler= new clientHandler(clientSocket,"jdbc:oracle:thin:@localhost:1521:xe","hr","hr");
+                clientHandler handler= new clientHandler(clientSocket,"jdbc:oracle:thin:@localhost:1521:xe",user,pass);
                 Thread thread= new Thread(handler);
                 thread.start();
             }
@@ -34,10 +71,6 @@ class clientHandler implements Runnable {
         this.url = url;
         this.user = user;
         this.pass = pass;
-    }
-
-    public void table_User_details(String username, String password, String query, BufferedReader br, PrintWriter pw) {
-
     }
 
     public void run() {
@@ -91,6 +124,9 @@ class clientHandler implements Runnable {
                 ex.printStackTrace();
             }
         }
+    }
+    public void paint(Graphics g){
+        g.drawString("Server is running now",250,250);
     }
 
     public void ohterOPS(String action) throws Exception {
