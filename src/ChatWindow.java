@@ -83,7 +83,7 @@ public class ChatWindow extends JFrame implements ActionListener {
 
     public void connectToserver() {
         try {
-            socket = new Socket("localhost", 4567);
+            socket = new Socket(SetServerIP.ip, 4567);
             System.out.println("Connected");
             pw = new PrintWriter(socket.getOutputStream(), true);
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));

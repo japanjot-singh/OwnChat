@@ -53,7 +53,7 @@ public class Welcome extends JFrame {
     }
     public static void autoLog(){
         try{
-            Socket socket = new Socket("localhost", 4567);
+            Socket socket = new Socket(SetServerIP.ip, 4567);
             PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
 
             pw.println("SLogOut");

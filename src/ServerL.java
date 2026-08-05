@@ -162,7 +162,7 @@ class clientHandler implements Runnable {
             if (rscl.next()) {
                 if ("LOGGED IN".equals(rscl.getString("STATUS"))) {
                     out.println("getting");
-                    String queryc = "SELECT CONTACT_NAME,CONTACT_IP FROM CONTACTS WHERE USERNAME=?";
+                    String queryc = "SELECT CONTACT_NAME FROM CONTACTS WHERE USERNAME=?";
                     PreparedStatement pstmtc = con.prepareStatement(queryc);
                     pstmtc.setString(1, cuser);
                     ResultSet rs = pstmtc.executeQuery();
@@ -178,11 +178,10 @@ class clientHandler implements Runnable {
 
         }
         if ("Add Contacts".equals(action)) {
-            String querya = "INSERT INTO CONTACTS(USERNAME,CONTACT_NAME,CONTACT_IP) VALUES(?,?,?)";
+            String querya = "INSERT INTO CONTACTS(USERNAME,CONTACT_NAME) VALUES(?,?)";
             PreparedStatement psa = con.prepareStatement(querya);
             psa.setString(1, br.readLine());
             psa.setString(2, br.readLine());
-            psa.setString(3, br.readLine());
             int n = psa.executeUpdate();
             if (n == 1) {
                 out.println("Added");
@@ -192,13 +191,12 @@ class clientHandler implements Runnable {
 
         }
         if ("Fetch contacts".equals(action)) {
-            String queryf = "SELECT CONTACT_NAME,CONTACT_IP FROM CONTACTS WHERE USERNAME=?";
+            String queryf = "SELECT CONTACT_NAME FROM CONTACTS WHERE USERNAME=?";
             PreparedStatement psf = con.prepareStatement(queryf);
             psf.setString(1, br.readLine());
             ResultSet rs = psf.executeQuery();
             while (rs.next()) {
                 out.println(rs.getString("CONTACT_NAME"));
-                out.println(rs.getString("CONTACT_IP"));
             }
             out.println("END");
         }

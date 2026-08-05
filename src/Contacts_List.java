@@ -29,7 +29,6 @@ public class Contacts_List extends JFrame implements ActionListener {
         // Setup clean JTable Model
         Vector<String> cols = new Vector<>();
         cols.add("Name");
-        cols.add("IP Address");
 
         model = new DefaultTableModel(cols, 0);
         jtc = new JTable(model);
@@ -43,9 +42,7 @@ public class Contacts_List extends JFrame implements ActionListener {
         jtc.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent me){
                 int r=jtc.rowAtPoint(me.getPoint());
-                int c=jtc.columnAtPoint(me.getPoint());
-                if(r != -1 && c != -1){
-                    tableValue=jtc.getValueAt(r,1);
+                if(r != -1 ){
                     Oname=jtc.getValueAt(r,0);
                 }
             }
@@ -62,7 +59,7 @@ public class Contacts_List extends JFrame implements ActionListener {
     }
     public void checkUser(String tn){
         try{
-            socket = new Socket("localhost", 4567);
+            socket = new Socket(SetServerIP.ip, 4567);
             System.out.println("Connected");
             pw = new PrintWriter(socket.getOutputStream(), true);
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -86,7 +83,7 @@ public class Contacts_List extends JFrame implements ActionListener {
     }
 
     private void fetchContactsData() {
-        try (Socket socket = new Socket("localhost", 4567);
+        try (Socket socket = new Socket(SetServerIP.ip, 4567);
              PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
@@ -99,7 +96,7 @@ public class Contacts_List extends JFrame implements ActionListener {
                 String ip = br.readLine();
 
                 String finalName = name;
-                SwingUtilities.invokeLater(() -> model.addRow(new Object[]{finalName, ip}));
+                SwingUtilities.invokeLater(() -> model.addRow(new Object[]{finalName}));
             }
         } catch (IOException e) {
             e.printStackTrace();

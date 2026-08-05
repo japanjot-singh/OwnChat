@@ -48,7 +48,7 @@ public class log extends JFrame implements ActionListener{
     }
     public void sendLG(String username,String password){
         try{
-            socket=new Socket("localhost",4567);
+            socket=new Socket(SetServerIP.ip,4567);
             System.out.println("Connected");
             PrintWriter pw=new PrintWriter(socket.getOutputStream(),true);
             BufferedReader br= new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -70,7 +70,7 @@ public class log extends JFrame implements ActionListener{
     }
     public static void checkTheme(){
         try {
-            Socket socket = new Socket("localhost", 4567);
+            Socket socket = new Socket(SetServerIP.ip, 4567);
             System.out.println("Connected");
             PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));

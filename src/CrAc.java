@@ -54,7 +54,7 @@ public class CrAc extends JFrame implements ActionListener{
     }
     public void SendCR(String username,String password) {
             try{
-                socket=new Socket("localhost",4567);
+                socket=new Socket(SetServerIP.ip,4567);
                 System.out.println("Connected");
                 PrintWriter pw=new PrintWriter(socket.getOutputStream(),true);
                 pw.println("Create Account");

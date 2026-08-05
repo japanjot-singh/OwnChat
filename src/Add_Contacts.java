@@ -18,19 +18,14 @@ public  class Add_Contacts extends JFrame implements ActionListener {
         jl1.setFont(new Font("nf", Font.BOLD, 22));
         jl1.setForeground(Color.BLACK);
         jl1.setOpaque(true);
-        jl2= new JLabel("Enter IP Address");
-        jl2.setFont(new Font("nf", Font.BOLD, 22));
-        jl2.setForeground(Color.BLACK);
-        jl2.setOpaque(true);
+
         jt1= new JTextField(20);
-        jt2= new JTextField(20);
+
         js= new JButton("Save");
         back= new JButton("Back");
 
         c.add(jl1);
         c.add(jt1);
-        c.add(jl2);
-        c.add(jt2);
         c.add(back);
         c.add(js);
 
@@ -48,17 +43,15 @@ public  class Add_Contacts extends JFrame implements ActionListener {
     }
     public void saveContact(){
         try {
-            socket = new Socket("localhost", 4567);
+            socket = new Socket(SetServerIP.ip, 4567);
             socket.setSoTimeout(10000);
             System.out.println("Connected");
             pw = new PrintWriter(socket.getOutputStream(), true);
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             pw.println("Add Contacts");
             String cname=jt1.getText();
-            String cip=jt2.getText();
             pw.println(clientSession.getUsername());
             pw.println(cname);
-            pw.println(cip);
             String response = br.readLine();
             if("Added".equals(response)){
                 SwingUtilities.invokeLater(() ->

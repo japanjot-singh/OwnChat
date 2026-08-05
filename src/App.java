@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 public class App extends JFrame{
     JTabbedPane jtb;
@@ -12,6 +11,8 @@ public class App extends JFrame{
         jtb= new JTabbedPane();
         jtb.addTab("Home",new Home());
         jtb.addTab("Settings",new Settings());
+        jtb.addTab("Set Server",new SetServerIP());
+
         jtb.setSelectedIndex(0);
         c.add(jtb);
         addWindowListener(new WindowAdapter() {

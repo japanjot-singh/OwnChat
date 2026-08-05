@@ -57,7 +57,7 @@ public class Settings extends JPanel implements ActionListener {
     }
     public void getCon(String message){
         try{
-            socket=new Socket("localhost",4567);
+            socket=new Socket(SetServerIP.ip,4567);
             System.out.println("Connected");
             PrintWriter pw=new PrintWriter(socket.getOutputStream(),true);
             BufferedReader br= new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -115,7 +115,7 @@ public class Settings extends JPanel implements ActionListener {
     }
     public static void setTheme(String value){
         try {
-            Socket socket = new Socket("localhost", 4567);
+            Socket socket = new Socket(SetServerIP.ip, 4567);
             System.out.println("Connected");
             PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -131,7 +131,7 @@ public class Settings extends JPanel implements ActionListener {
 
     public void CUser(String message,String nu){
         try{
-            socket=new Socket("localhost",4567);
+            socket=new Socket(SetServerIP.ip,4567);
             System.out.println("Connected");
             PrintWriter pw=new PrintWriter(socket.getOutputStream(),true);
             BufferedReader br= new BufferedReader(new InputStreamReader(socket.getInputStream()));
