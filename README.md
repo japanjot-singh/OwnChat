@@ -1,7 +1,8 @@
-# OwnChat
-A Decentralized Chat Application for Desktops (client->Server->client) using Java Swing and Sockets and Oracle Database.
+# OwnChat 🔐🌎
+## For those who yearn for freedom 🏳️
+A Decentralized Chat Application for Desktops (client->Server->client) using Java Swing and Sockets and Oracle Database.\
 
-## Features
+## Features📲
 
 - It is Decentralized, every chat of you or your organization stays within the server on your machine
 - Create user accounts
@@ -65,6 +66,12 @@ A Decentralized Chat Application for Desktops (client->Server->client) using Jav
 | `clientSession.java` | Static holder for the current client-side session (username, logged-in flag). |
 | `ServerL.java` | Server entry point: GUI for DB credentials + status panel, `ServerSocket` accept loop, and `clientHandler` — the per-connection request router and all DB operations. |
 | `OwnChatDB.sql` | Oracle schema: `USER_DETAILS`, `SETTINGS`, `LOG_STATUS`, `CONTACTS`, `CHAT_HISTORY`, plus triggers that seed default settings/log status when a user is created. |
+
+## How To Setup
+
+-Download and extarct the Files
+-Run the exe file
+-
 
 
 
