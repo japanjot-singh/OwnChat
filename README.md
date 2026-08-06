@@ -76,25 +76,25 @@ A Decentralized Chat Application for Desktops (client->Server->client) using Jav
 
 ### (2) Setup the Server
 
---Download JDK
---Downlaod IntelliJ and set it up
---Download Ojdbc driver for oracle
---Run the ServerL.java file
---The Window will open then input the database username and password to connect
+-Download JDK
+-Downlaod IntelliJ and set it up
+-Download Ojdbc driver for oracle
+-Run the ServerL.java file
+-The Window will open then input the database username and password to connect
 
 ### (3) Setting up the Client(OwnChat App)
 
---Download and then extract the file
---Drive Link: https://drive.google.com/drive/folders/1rVhccv8CuPzHBdt1-s6ONpIPHXCPwwUF?usp=drive_link
---Run the exe file
---Go to set Server then input the IP Address of your Sever
---Create account
---Log in
---Go to Chat Now and add contacts 
---Then again click chat now
---Contacts list will arrive 
---Select the contact then hit connect if the user is online the chat window will open
---Chat Freely
+-Download and then extract the file
+-Drive Link: https://drive.google.com/drive/folders/1rVhccv8CuPzHBdt1-s6ONpIPHXCPwwUF?usp=drive_link
+-Run the exe file
+-Go to set Server then input the IP Address of your Sever
+-Create account
+-Log in
+-Go to Chat Now and add contacts 
+-Then again click chat now
+-Contacts list will arrive 
+-Select the contact then hit connect if the user is online the chat window will open
+-Chat Freely
 
 
 
