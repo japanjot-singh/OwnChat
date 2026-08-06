@@ -71,8 +71,8 @@ A Decentralized Chat Application for Desktops (client->Server->client) using Jav
 
 ### (1) Build Database:
 
--Download Oracle
--Run the OwnchatDB.sql File (excluding the statements of drop table; are only for dropping in case there is an issue or you want to alter)
+- Download Oracle
+- Run the OwnchatDB.sql File (excluding the statements of drop table; are only for dropping in case there is an issue or you want to alter)
 
 ### (2) Setup the Server
 
