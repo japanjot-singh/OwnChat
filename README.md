@@ -85,7 +85,7 @@ A Decentralized Chat Application for Desktops (client->Server->client) using Jav
 ### (3) Setting up the Client(OwnChat App)
 
 - Download and then extract the file
-- Drive Link: https://drive.google.com/drive/folders/1rVhccv8CuPzHBdt1-s6ONpIPHXCPwwUF?usp=drive_link
+- Drive Link: https://drive.google.com/drive/folders/1pnVOPJHiyqww1bjwhNc-7OrsLRe3C4_i?usp=sharing
 - Run the exe file
 - Go to set Server then input the IP Address of your Sever
 - Create account
