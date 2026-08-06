@@ -5,14 +5,59 @@ import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentHashMap.*;
-public class ServerL{
-    public static void main(String args[]){
-        try{
-            ServerSocket ss= new ServerSocket(4567);
-            while (true){
-                Socket clientSocket= ss.accept();
-                clientHandler handler= new clientHandler(clientSocket,"jdbc:oracle:thin:@localhost:1521:xe","hr","hr");
-                Thread thread= new Thread(handler);
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.net.Socket;
+
+public class ServerL extends JFrame implements ActionListener {
+    JLabel jl1, jl2;
+    JTextField jtf1, jtf2;
+    JButton jb;
+    static String user, pass;
+    StatusPanel statusPanel;
+
+    ServerL() {
+        Container c = this.getContentPane();
+        setLayout(new FlowLayout());
+        jl1 = new JLabel("Enter DB Username");
+        jl2 = new JLabel("Enter DB Password");
+
+        jtf1 = new JTextField(30);
+        jtf2 = new JTextField(30);
+
+        jb = new JButton("SET");
+        jb.addActionListener(this);
+
+        statusPanel = new StatusPanel();
+
+        c.add(jl1);
+        c.add(jtf1);
+        c.add(jl2);
+        c.add(jtf2);
+        c.add(jb);
+        c.add(statusPanel);
+    }
+
+    public void actionPerformed(ActionEvent ae) {
+        if (ae.getSource() == jb) {
+            user = jtf1.getText();
+            pass = jtf2.getText();
+        }
+    }
+
+    public static void main(String args[]) {
+        try {
+            ServerL sl = new ServerL();
+            sl.setSize(500, 500);
+            sl.setTitle("Server");
+            sl.setVisible(true);
+            sl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            ServerSocket ss = new ServerSocket(4567);
+            while (true) {
+                Socket clientSocket = ss.accept();
+                clientHandler handler = new clientHandler(clientSocket, "jdbc:oracle:thin:@localhost:1521:xe", user, pass, sl.statusPanel);
+                Thread thread = new Thread(handler);
                 thread.start();
             }
         } catch (IOException e) {
@@ -20,65 +65,85 @@ public class ServerL{
         }
     }
 }
+
+class StatusPanel extends JPanel {
+    public StatusPanel() {
+        setPreferredSize(new Dimension(400, 150));
+    }
+
+    private boolean isRunning = false;
+
+    public void setRunning(boolean running) {
+        this.isRunning = running;
+        repaint();
+    }
+
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if (isRunning) {
+            g.setFont(new Font("Arial", Font.BOLD, 22));
+            g.setColor(new Color(0, 128, 0)); // Green text
+            g.drawString("Server is Running...", 80, 80);
+        }
+    }
+}
+
 class clientHandler implements Runnable {
     String url, user, pass;
     Socket socket;
     String euser, epass;
+    StatusPanel statusPanel;
     PrintWriter out;
     Connection con;
     BufferedReader br;
     static Map<String, PrintWriter> chatUsers = new ConcurrentHashMap<>();
 
-    clientHandler(Socket socket, String url, String user, String pass) {
+    clientHandler(Socket socket, String url, String user, String pass, StatusPanel statusPanel) {
         this.socket = socket;
         this.url = url;
         this.user = user;
         this.pass = pass;
-    }
-
-    public void table_User_details(String username, String password, String query, BufferedReader br, PrintWriter pw) {
-
+        this.statusPanel = statusPanel;
     }
 
     public void run() {
-        String currentUser=null;
+        String currentUser = null;
         try {
             System.out.println("Connected");
+            if (statusPanel != null) SwingUtilities.invokeLater(() -> statusPanel.setRunning(true));
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
 
             String action = br.readLine();
             con = DriverManager.getConnection(url, user, pass);
             if ("chat_connect".equals(action)) {
-                    currentUser=br.readLine();
-                    String targetUser=br.readLine();
-                    if(currentUser != null){
-                        chatUsers.put(currentUser,out);
+                currentUser = br.readLine();
+                String targetUser = br.readLine();
+                if (currentUser != null) {
+                    chatUsers.put(currentUser, out);
+                }
+                String msgLine;
+                while ((msgLine = br.readLine()) != null) {
+                    PrintWriter targetOut = chatUsers.get(targetUser);
+                    if (targetOut != null) {
+                        targetOut.println(msgLine);
+                        String qch = "INSERT INTO CHAT_HISTORY(SENDER,MESSAGE,RECIEVER) VALUES(?,?,?)";
+                        PreparedStatement psch = con.prepareStatement(qch);
+                        psch.setString(1, currentUser);
+                        psch.setString(2, msgLine);
+                        psch.setString(3, targetUser);
+                        psch.executeUpdate();
                     }
-                    String msgLine;
-                    while((msgLine = br.readLine()) != null){
-                        PrintWriter targetOut= chatUsers.get(targetUser);
-                        if(targetOut != null){
-                            targetOut.println(msgLine);
-                            String qch="INSERT INTO CHAT_HISTORY(SENDER,MESSAGE,RECIEVER) VALUES(?,?,?)";
-                            PreparedStatement psch= con.prepareStatement(qch);
-                            psch.setString(1,currentUser);
-                            psch.setString(2,msgLine);
-                            psch.setString(3,targetUser);
-                            psch.executeUpdate();
-                        }
-
-                    }
+                }
             } else {
                 ohterOPS(action);
             }
-
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if(currentUser != null){
-                chatUsers.remove(currentUser,out);
+            if (currentUser != null) {
+                chatUsers.remove(currentUser, out);
             }
             try {
                 if (con != null) con.close();
@@ -91,6 +156,10 @@ class clientHandler implements Runnable {
                 ex.printStackTrace();
             }
         }
+    }
+
+    public void paint(Graphics g) {
+        g.drawString("Server is running now", 250, 250);
     }
 
     public void ohterOPS(String action) throws Exception {
@@ -121,7 +190,6 @@ class clientHandler implements Runnable {
                 pstmt2.executeUpdate();
                 out.println("Saved");
             }
-
         }
         if ("Log In".equals(action)) {
             String usernameL = br.readLine();
@@ -140,7 +208,6 @@ class clientHandler implements Runnable {
                 out.println("found");
                 clientSession.login(usernameL);
                 lf = true;
-
             }
             if (!lf) {
                 out.println("wrong");
@@ -148,7 +215,7 @@ class clientHandler implements Runnable {
         }
         if ("SLogOut".equals(action)) {
             String queryu = "UPDATE LOG_STATUS SET STATUS='LOGGED OUT' WHERE USERNAME=?";
-            String ul=br.readLine();
+            String ul = br.readLine();
             PreparedStatement pstmtu = con.prepareStatement(queryu);
             pstmtu.setString(1, ul);
             pstmtu.executeUpdate();
@@ -162,7 +229,7 @@ class clientHandler implements Runnable {
             if (rscl.next()) {
                 if ("LOGGED IN".equals(rscl.getString("STATUS"))) {
                     out.println("getting");
-                    String queryc = "SELECT CONTACT_NAME,CONTACT_IP FROM CONTACTS WHERE USERNAME=?";
+                    String queryc = "SELECT CONTACT_NAME FROM CONTACTS WHERE USERNAME=?";
                     PreparedStatement pstmtc = con.prepareStatement(queryc);
                     pstmtc.setString(1, cuser);
                     ResultSet rs = pstmtc.executeQuery();
@@ -175,10 +242,9 @@ class clientHandler implements Runnable {
                     out.println("not logged in");
                 }
             }
-
         }
         if ("Add Contacts".equals(action)) {
-            String querya = "INSERT INTO CONTACTS(USERNAME,CONTACT_NAME) VALUES(?,?";
+            String querya = "INSERT INTO CONTACTS(USERNAME,CONTACT_NAME) VALUES(?,?)";
             PreparedStatement psa = con.prepareStatement(querya);
             psa.setString(1, br.readLine());
             psa.setString(2, br.readLine());
@@ -188,7 +254,6 @@ class clientHandler implements Runnable {
             } else {
                 out.println("Not Added");
             }
-
         }
         if ("Fetch contacts".equals(action)) {
             String queryf = "SELECT CONTACT_NAME FROM CONTACTS WHERE USERNAME=?";
@@ -201,7 +266,6 @@ class clientHandler implements Runnable {
             out.println("END");
         }
         if ("Change username".equals(action)) {
-
             String cl1 = "SELECT STATUS FROM LOG_STATUS WHERE USERNAME=?";
             PreparedStatement pstmtcl1 = con.prepareStatement(cl1);
             String cuser = br.readLine();
