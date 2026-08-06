@@ -93,7 +93,6 @@ public class Contacts_List extends JFrame implements ActionListener {
             String name;
             while ((name = br.readLine()) != null) {
                 if ("END".equals(name)) break;
-                String ip = br.readLine();
 
                 String finalName = name;
                 SwingUtilities.invokeLater(() -> model.addRow(new Object[]{finalName}));
