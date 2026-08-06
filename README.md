@@ -95,3 +95,8 @@ A Decentralized Chat Application for Desktops (client->Server->client) using Jav
 - Contacts list will arrive 
 - Select the contact then hit connect if the user is online the chat window will open
 - Chat Freely
+
+## Important Points
+
+- For the client running on the same machine as server you do not need set server IP Address or just set as localhost if needed
+
