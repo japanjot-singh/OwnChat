@@ -1,10 +1,10 @@
 # OwnChat 🔐🌎
 ## For those who yearn for freedom 🏳️
-A Self-Hosted Chat Application for Desktops (client->Server->client) using Java Swing and Sockets and Oracle Database.\
+A Self-Hosted Chat Application for Desktops (client->Server->client) using Java Swing and Sockets and Oracle Database.
 
 ## Features📲
 
-- It is Decentralized, every chat of you or your organization stays within the server on your machine
+- It is self-hosted and contained, every chat of you or your organization stays within the server on your machine
 - Create user accounts
 - Log in and log out
 - Save contacts
