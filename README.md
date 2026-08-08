@@ -1,6 +1,6 @@
 # OwnChat 🔐🌎
 ## For those who yearn for freedom 🏳️
-A Decentralized Chat Application for Desktops (client->Server->client) using Java Swing and Sockets and Oracle Database.\
+A Self-Hosted Chat Application for Desktops (client->Server->client) using Java Swing and Sockets and Oracle Database.\
 
 ## Features📲
 
