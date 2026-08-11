@@ -65,6 +65,8 @@ public class ChatWindow extends JFrame implements ActionListener {
 
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == back) {
+            Contacts_List.onWindow=false;
+            Contacts_List.online_fill(Contacts_List.onWindow);
             this.dispose();
         }
         if (ae.getSource() == cont) {
@@ -102,7 +104,13 @@ public class ChatWindow extends JFrame implements ActionListener {
             try{
                 String msg;
                 while((msg=br.readLine()) != null) {
-                    jtar.setText(msg);
+                    if("The user has not opened the chat window".equals(msg)){
+                        JOptionPane.showMessageDialog(this,"User has not opened the chat window");
+                    }
+                    else {
+                        jtar.append(msg);
+                    }
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();

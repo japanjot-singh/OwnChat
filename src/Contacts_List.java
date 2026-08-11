@@ -15,7 +15,7 @@ public class Contacts_List extends JFrame implements ActionListener {
     Socket socket;
     PrintWriter pw;
     BufferedReader br;
-    boolean onWindow=false;
+     static boolean onWindow=false;
 
     public Contacts_List() {
         Container c = this.getContentPane();
@@ -70,9 +70,9 @@ public class Contacts_List extends JFrame implements ActionListener {
                 ChatWindow ch= new ChatWindow(tn);
                 ch.setSize(1200,750);
                 ch.setTitle(clientSession.getUsername()+" Chatting with "+tn);
-                ch.setVisible(true);
                 onWindow=true;
-
+                online_fill(onWindow);
+                ch.setVisible(true);
             }
             else {
                 JOptionPane.showMessageDialog(this,"user is offline. Try another time");
@@ -111,5 +111,24 @@ public class Contacts_List extends JFrame implements ActionListener {
                 startChat(tableValue,Oname,onWindow);
             }).start();
         }
+    }
+    public static void online_fill(Boolean onFlag){
+        try{
+            Socket socket = new Socket(SetServerIP.ip, 4567);
+            PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pw.println("Change online status");
+            if(onFlag == true){
+                pw.println("ONLINE");
+                pw.println(clientSession.getUsername());
+            }
+            else{
+                pw.println("OFFLINE");
+                pw.println(clientSession.getUsername());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

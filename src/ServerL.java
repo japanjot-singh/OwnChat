@@ -126,6 +126,7 @@ class clientHandler implements Runnable {
                 String msgLine;
                 while ((msgLine = br.readLine()) != null) {
                     PrintWriter targetOut = chatUsers.get(targetUser);
+                    PrintWriter targetIN = chatUsers.get(currentUser);
                     if (targetOut != null) {
                         targetOut.println(msgLine);
                         String qch = "INSERT INTO CHAT_HISTORY(SENDER,MESSAGE,RECIEVER) VALUES(?,?,?)";
@@ -134,6 +135,9 @@ class clientHandler implements Runnable {
                         psch.setString(2, msgLine);
                         psch.setString(3, targetUser);
                         psch.executeUpdate();
+                    }
+                    else {
+                        targetIN.println("The user has not opened the chat window");
                     }
                 }
             } else {
@@ -325,6 +329,15 @@ class clientHandler implements Runnable {
             } else {
                 out.println("offline");
             }
+        }
+        if("Change online status".equals(action)){
+            String status=br.readLine();
+            String queryOF="UPDATE LOG_STATUS SET ONLINE_STATUS=? WHERE USERNAME=?";
+            PreparedStatement psof= con.prepareStatement(queryOF);
+            psof.setString(1,status);
+            psof.setString(2, br.readLine());
+            psof.executeUpdate();
+
         }
     }
 }
