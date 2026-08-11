@@ -28,7 +28,9 @@ public class ChatWindow extends JFrame implements ActionListener {
         c.add(BorderLayout.CENTER,jspcb);
 
         back= new JButton("Back");
+        back.addActionListener(this);
         contacts= new JButton("Contacts");
+        contacts.addActionListener(this);
         c.add(BorderLayout.EAST,back);
         c.add(BorderLayout.WEST,contacts);
 
@@ -37,6 +39,7 @@ public class ChatWindow extends JFrame implements ActionListener {
         jspth= new JScrollPane(jtth);
         jl2= new JLabel("Type Here");
         send= new JButton("Send");
+        send.addActionListener(this);
 
         jp.add(BorderLayout.NORTH,jl2);
         jp.add(BorderLayout.CENTER,jspth);
@@ -55,6 +58,12 @@ public class ChatWindow extends JFrame implements ActionListener {
             Contacts_List.onWindow=false;
             Contacts_List.online_fill(Contacts_List.onWindow);
             this.dispose();
+        }
+        if(ae.getSource() == send){
+            String text=jtth.getText();
+            jtcb.append(text+"\n");
+            pw.println(text);
+            jtth.setText("");
         }
 
     }
@@ -84,7 +93,7 @@ public class ChatWindow extends JFrame implements ActionListener {
                         JOptionPane.showMessageDialog(this,"User has not opened the chat window");
                     }
                     else {
-
+                        jtcb.append(msg+"\n");
                     }
 
                 }
