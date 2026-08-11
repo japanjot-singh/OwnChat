@@ -12,6 +12,7 @@ public class App extends JFrame{
         jtb.addTab("Home",new Home());
         jtb.addTab("Settings",new Settings());
         jtb.addTab("Set Server",new SetServerIP());
+        jtb.addTab("About",new About());
 
         jtb.setSelectedIndex(0);
         c.add(jtb);

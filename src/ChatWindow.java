@@ -6,11 +6,11 @@ import java.net.*;
 import javax.swing.text.*;
 
 public class ChatWindow extends JFrame implements ActionListener {
-    JLabel jl1,jl2;
+    JLabel jl1, jl2;
     JTextPane jtcb;
     JTextArea jtth;
-    JScrollPane jspcb,jspth;
-    JButton send,back,contacts;
+    JScrollPane jspcb, jspth;
+    JButton send, back, contacts;
     JPanel jp;
     BufferedReader br;
     PrintWriter pw;
@@ -19,37 +19,36 @@ public class ChatWindow extends JFrame implements ActionListener {
 
     ChatWindow(String othName) {
         Container c = this.getContentPane();
-        c.setLayout(new BorderLayout(5,5));
-        this.targetUser=othName;
+        c.setLayout(new BorderLayout(5, 5));
+        this.targetUser = othName;
 
         jl1 = new JLabel("Chat Box");
-        jtcb= new JTextPane();
+        jtcb = new JTextPane();
         jtcb.setEditable(false);
-        jspcb= new JScrollPane(jtcb);
+        jspcb = new JScrollPane(jtcb);
 
-        c.add(BorderLayout.NORTH,jl1);
-        c.add(BorderLayout.CENTER,jspcb);
+        c.add(BorderLayout.NORTH, jl1);
+        c.add(BorderLayout.CENTER, jspcb);
 
-        back= new JButton("Back");
+        back = new JButton("Back");
         back.addActionListener(this);
-        contacts= new JButton("Contacts");
+        contacts = new JButton("Contacts");
         contacts.addActionListener(this);
-        c.add(BorderLayout.EAST,back);
-        c.add(BorderLayout.WEST,contacts);
+        c.add(BorderLayout.EAST, back);
+        c.add(BorderLayout.WEST, contacts);
 
-        jp= new JPanel(new BorderLayout(3,3));
-        jtth= new JTextArea(5,10);
-        jspth= new JScrollPane(jtth);
-        jl2= new JLabel("Type Here");
-        send= new JButton("Send");
+        jp = new JPanel(new BorderLayout(3, 3));
+        jtth = new JTextArea(5, 10);
+        jspth = new JScrollPane(jtth);
+        jl2 = new JLabel("Type Here");
+        send = new JButton("Send");
         send.addActionListener(this);
 
-        jp.add(BorderLayout.NORTH,jl2);
-        jp.add(BorderLayout.CENTER,jspth);
-        jp.add(BorderLayout.SOUTH,send);
+        jp.add(BorderLayout.NORTH, jl2);
+        jp.add(BorderLayout.CENTER, jspth);
+        jp.add(BorderLayout.SOUTH, send);
 
-        c.add(BorderLayout.SOUTH,jp);
-
+        c.add(BorderLayout.SOUTH, jp);
 
 
         connectToserver();
@@ -58,18 +57,19 @@ public class ChatWindow extends JFrame implements ActionListener {
 
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == back) {
-            Contacts_List.onWindow=false;
+            Contacts_List.onWindow = false;
             Contacts_List.online_fill(Contacts_List.onWindow);
             this.dispose();
         }
-        if(ae.getSource() == send){
-            String text=jtth.getText();
-            appendColoredText(text,Color.green,true);
+        if (ae.getSource() == send) {
+            String text = jtth.getText();
+            appendColoredText(text, Color.green, true);
             pw.println(text);
             jtth.setText("");
         }
 
     }
+
     private void appendColoredText(String text, Color color, boolean bold) {
         StyledDocument doc = jtcb.getStyledDocument();
         SimpleAttributeSet style = new SimpleAttributeSet();
@@ -78,8 +78,8 @@ public class ChatWindow extends JFrame implements ActionListener {
         StyleConstants.setFontSize(style, 14);
 
         try {
-            doc.insertString(doc.getLength(), text + "\n", style);
-            jtcb.setCaretPosition(doc.getLength()); // Auto-scroll to bottom
+            doc.insertString(doc.getLength(), text + "\n\n", style);
+            jtcb.setCaretPosition(doc.getLength());
         } catch (BadLocationException e) {
             e.printStackTrace();
         }
@@ -101,16 +101,15 @@ public class ChatWindow extends JFrame implements ActionListener {
             e.printStackTrace();
         }
     }
-    public void startRecieving() throws IOException{
-        new Thread(()->{
-            try{
+    public void startRecieving() throws IOException {
+        new Thread(() -> {
+            try {
                 String msg;
-                while((msg=br.readLine()) != null) {
-                    if("The user has not opened the chat window".equals(msg)){
-                        JOptionPane.showMessageDialog(this,"User has not opened the chat window");
-                    }
-                    else {
-                        appendColoredText(msg,Color.CYAN,true);
+                while ((msg = br.readLine()) != null) {
+                    if ("The user has not opened the chat window".equals(msg)) {
+                        JOptionPane.showMessageDialog(this, "User has not opened the chat window");
+                    } else {
+                        appendColoredText(msg, Color.CYAN, true);
                     }
 
                 }
