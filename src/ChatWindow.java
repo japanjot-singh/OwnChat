@@ -3,10 +3,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import javax.swing.text.*;
 
 public class ChatWindow extends JFrame implements ActionListener {
     JLabel jl1,jl2;
-    JTextArea jtcb,jtth;
+    JTextPane jtcb;
+    JTextArea jtth;
     JScrollPane jspcb,jspth;
     JButton send,back,contacts;
     JPanel jp;
@@ -21,7 +23,8 @@ public class ChatWindow extends JFrame implements ActionListener {
         this.targetUser=othName;
 
         jl1 = new JLabel("Chat Box");
-        jtcb= new JTextArea(10,10);
+        jtcb= new JTextPane();
+        jtcb.setEditable(false);
         jspcb= new JScrollPane(jtcb);
 
         c.add(BorderLayout.NORTH,jl1);
@@ -61,11 +64,25 @@ public class ChatWindow extends JFrame implements ActionListener {
         }
         if(ae.getSource() == send){
             String text=jtth.getText();
-            jtcb.append(text+"\n");
+            appendColoredText(text,Color.green,true);
             pw.println(text);
             jtth.setText("");
         }
 
+    }
+    private void appendColoredText(String text, Color color, boolean bold) {
+        StyledDocument doc = jtcb.getStyledDocument();
+        SimpleAttributeSet style = new SimpleAttributeSet();
+        StyleConstants.setForeground(style, color);
+        StyleConstants.setBold(style, bold);
+        StyleConstants.setFontSize(style, 14);
+
+        try {
+            doc.insertString(doc.getLength(), text + "\n", style);
+            jtcb.setCaretPosition(doc.getLength()); // Auto-scroll to bottom
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
     }
 
     public void connectToserver() {
@@ -93,7 +110,7 @@ public class ChatWindow extends JFrame implements ActionListener {
                         JOptionPane.showMessageDialog(this,"User has not opened the chat window");
                     }
                     else {
-                        jtcb.append(msg+"\n");
+                        appendColoredText(msg,Color.CYAN,true);
                     }
 
                 }
