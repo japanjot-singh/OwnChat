@@ -80,6 +80,10 @@ public class ChatWindow extends JFrame implements ActionListener {
             pw.println(text);
             jtth.setText("");
         }
+        if(ae.getSource() == contacts){
+            Home.openClist(true);
+            this.dispose();
+        }
 
     }
 

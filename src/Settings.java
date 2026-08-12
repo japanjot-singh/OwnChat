@@ -10,19 +10,21 @@ import java.net.*;
 
 public class Settings extends JPanel implements ActionListener {
     JLabel[] labels;
-    JButton jb1,jb2;
+    JButton jb1,jb2,jb3;
     Socket socket;
     JRadioButton cm,cd,cl;
     ButtonGroup bg;
     JPanel jp;
     Settings(){
-        setLayout(new GridLayout(3,2));
-        labels = new JLabel[3];
+        setLayout(new GridLayout(4,2));
+        labels = new JLabel[4];
         labels[0]= new JLabel("Log Out");
         jb1= new JButton("Log out");
         labels[1]= new JLabel("Change username");
         jb2= new JButton("Change username");
         labels[2]= new JLabel("Change theme");
+        labels[3]= new JLabel("Add Contacts");
+        jb3= new JButton("Add Contacts");
         cm= new JRadioButton("Metal");
         cd= new JRadioButton("Dark");
         cl= new JRadioButton("Light");
@@ -33,6 +35,7 @@ public class Settings extends JPanel implements ActionListener {
         cm.addActionListener(this);
         cd.addActionListener(this);
         cl.addActionListener(this);
+
         jp = new JPanel();
         jp.add(cm);
         jp.add(cd);
@@ -52,6 +55,10 @@ public class Settings extends JPanel implements ActionListener {
         jb2.addActionListener(this);
         add(labels[2]);
         add(jp);
+        add(labels[3]);
+        add(jb3);
+        jb3.addActionListener(this);
+
 
 
     }
@@ -78,6 +85,9 @@ public class Settings extends JPanel implements ActionListener {
         if(ae.getSource() == jb2){
             String nu=JOptionPane.showInputDialog(this,"Enter new username");
             CUser("Change username",nu);
+        }
+        if(ae.getSource() == jb3){
+            Home.AddC();
         }
         if(ae.getSource() == cm){
             applyTheme("METAL");

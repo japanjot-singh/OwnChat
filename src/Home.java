@@ -81,11 +81,7 @@ public class Home extends JPanel implements ActionListener {
                     openClist(true);
                 }
                 if("No contacts".equals(res)){
-                    Add_Contacts cl= new Add_Contacts();
-                    cl.setTitle("Add Contacts");
-                    cl.setSize(500,500);
-                    cl.setVisible(true);
-                    cl.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    AddC();
                 }
             }
             if("not logged in".equals(resp)){
@@ -98,6 +94,13 @@ public class Home extends JPanel implements ActionListener {
         catch (IOException ie){
             ie.printStackTrace();
         }
+    }
+    public static void AddC(){
+        Add_Contacts cl= new Add_Contacts();
+        cl.setTitle("Add Contacts");
+        cl.setSize(500,500);
+        cl.setVisible(true);
+        cl.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
     public static void openClist(boolean value){
         Contacts_List clf= new Contacts_List();
