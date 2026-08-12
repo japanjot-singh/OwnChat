@@ -4,6 +4,8 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import javax.swing.text.*;
+import java.time.*;
+import java.time.temporal.ChronoUnit;
 
 public class ChatWindow extends JFrame implements ActionListener {
     JLabel jl1, jl2;
@@ -16,11 +18,21 @@ public class ChatWindow extends JFrame implements ActionListener {
     PrintWriter pw;
     Socket socket;
     String targetUser;
+     public LocalDate date;
+     public LocalTime time;
+    String sdate;
+    String sstime;
+
 
     ChatWindow(String othName) {
         Container c = this.getContentPane();
         c.setLayout(new BorderLayout(5, 5));
         this.targetUser = othName;
+        date= LocalDate.now();
+        sdate=date.toString();
+        time= LocalTime.now();
+        LocalTime stime=time.truncatedTo(ChronoUnit.SECONDS);
+        sstime=stime.toString();
 
         jl1 = new JLabel("Chat Box");
         jtcb = new JTextPane();
@@ -63,6 +75,7 @@ public class ChatWindow extends JFrame implements ActionListener {
         }
         if (ae.getSource() == send) {
             String text = jtth.getText();
+            appendColoredText(sdate+" "+sstime, Color.BLACK, true);
             appendColoredText(text, Color.green, true);
             pw.println(text);
             jtth.setText("");
@@ -136,12 +149,13 @@ public class ChatWindow extends JFrame implements ActionListener {
                 String message=parts[1];
                 String date=parts[2];
                 if(sender.equals(clientSession.getUsername())){
-                    appendColoredText("ME: "+message,Color.green,true);
                     appendColoredDate(date,Color.BLACK,true);
+                    appendColoredText("ME: "+message,Color.green,true);
+
                 }
                 else{
-                    appendColoredText(sender+": "+message,Color.CYAN,true);
                     appendColoredDate(date,Color.BLACK,true);
+                    appendColoredText(sender+": "+message,Color.CYAN,true);
                 }
             }
         } catch (Exception e) {
@@ -157,6 +171,7 @@ public class ChatWindow extends JFrame implements ActionListener {
                     if ("The user has not opened the chat window".equals(msg)) {
                         JOptionPane.showMessageDialog(this, "User has not opened the chat window");
                     } else {
+                        appendColoredText(sdate+" "+sstime, Color.BLACK, true);
                         appendColoredText(msg, Color.CYAN, true);
                     }
 
