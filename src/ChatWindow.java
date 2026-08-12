@@ -85,6 +85,21 @@ public class ChatWindow extends JFrame implements ActionListener {
         }
     }
 
+    private void appendColoredDate(String Date, Color color, boolean bold) {
+        StyledDocument doc = jtcb.getStyledDocument();
+        SimpleAttributeSet style = new SimpleAttributeSet();
+        StyleConstants.setForeground(style, color);
+        StyleConstants.setBold(style, bold);
+        StyleConstants.setFontSize(style, 14);
+
+        try {
+            doc.insertString(doc.getLength(), Date + "\n", style);
+            jtcb.setCaretPosition(doc.getLength());
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void connectToserver() {
         try {
             socket = new Socket(SetServerIP.ip, 4567);
@@ -116,14 +131,17 @@ public class ChatWindow extends JFrame implements ActionListener {
                 if(line.equals("END")){
                     break;
                 }
-                String parts[]=line.split("\t",2);
+                String parts[]=line.split("\t",3);
                 String sender=parts[0];
                 String message=parts[1];
+                String date=parts[2];
                 if(sender.equals(clientSession.getUsername())){
                     appendColoredText("ME: "+message,Color.green,true);
+                    appendColoredDate(date,Color.BLACK,true);
                 }
                 else{
                     appendColoredText(sender+": "+message,Color.CYAN,true);
+                    appendColoredDate(date,Color.BLACK,true);
                 }
             }
         } catch (Exception e) {

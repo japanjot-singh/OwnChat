@@ -340,7 +340,7 @@ class clientHandler implements Runnable {
 
         }
         if("ChatHistory".equals(action)){
-            String ch="SELECT SENDER,MESSAGE FROM CHAT_HISTORY WHERE (SENDER=? AND RECIEVER=?) OR (SENDER=? AND RECIEVER=?) ORDER BY TIMES ASC";
+            String ch="SELECT SENDER,MESSAGE,DATES FROM CHAT_HISTORY WHERE (SENDER=? AND RECIEVER=?) OR (SENDER=? AND RECIEVER=?) ORDER BY TIMES ASC";
             PreparedStatement psch=con.prepareStatement(ch);
             String p1= br.readLine();
             String p2=br.readLine();
@@ -350,7 +350,7 @@ class clientHandler implements Runnable {
             psch.setString(4,p1);
             ResultSet rsc=psch.executeQuery();
             while(rsc.next()){
-                out.println(rsc.getString("SENDER") + "\t"+rsc.getString("MESSAGE"));
+                out.println(rsc.getString("SENDER") + "\t"+rsc.getString("MESSAGE")+"\t"+rsc.getString("DATES"));
             }
             out.println("END");
 
