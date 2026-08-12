@@ -91,6 +91,7 @@ public class ChatWindow extends JFrame implements ActionListener {
             System.out.println("Connected");
             pw = new PrintWriter(socket.getOutputStream(), true);
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            displayHistory();
             pw.println("chat_connect");
             pw.println(clientSession.getUsername());
             pw.println(targetUser);
@@ -100,6 +101,35 @@ public class ChatWindow extends JFrame implements ActionListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public void displayHistory(){
+        try{
+            Socket socket = new Socket(SetServerIP.ip, 4567);
+            System.out.println("Connected");
+            PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            pw.println("ChatHistory");
+            pw.println(clientSession.getUsername());
+            pw.println(targetUser);
+            String line;
+            while((line= br.readLine()) != null){
+                if(line.equals("END")){
+                    break;
+                }
+                String parts[]=line.split("\t",2);
+                String sender=parts[0];
+                String message=parts[1];
+                if(sender.equals(clientSession.getUsername())){
+                    appendColoredText("ME: "+message,Color.green,true);
+                }
+                else{
+                    appendColoredText(sender+": "+message,Color.CYAN,true);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
     public void startRecieving() throws IOException {
         new Thread(() -> {

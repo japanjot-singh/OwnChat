@@ -339,5 +339,21 @@ class clientHandler implements Runnable {
             psof.executeUpdate();
 
         }
+        if("ChatHistory".equals(action)){
+            String ch="SELECT SENDER,MESSAGE FROM CHAT_HISTORY WHERE (SENDER=? AND RECIEVER=?) OR (SENDER=? AND RECIEVER=?) ORDER BY TIMES ASC";
+            PreparedStatement psch=con.prepareStatement(ch);
+            String p1= br.readLine();
+            String p2=br.readLine();
+            psch.setString(1,p1);
+            psch.setString(2,p2);
+            psch.setString(3,p2);
+            psch.setString(4,p1);
+            ResultSet rsc=psch.executeQuery();
+            while(rsc.next()){
+                out.println(rsc.getString("SENDER") + "\t"+rsc.getString("MESSAGE"));
+            }
+            out.println("END");
+
+        }
     }
 }
