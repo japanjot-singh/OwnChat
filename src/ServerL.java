@@ -129,15 +129,11 @@ class clientHandler implements Runnable {
                     PrintWriter targetIN = chatUsers.get(currentUser);
                     if (targetOut != null) {
                         targetOut.println(msgLine);
-                        String qch = "INSERT INTO CHAT_HISTORY(SENDER,MESSAGE,RECIEVER) VALUES(?,?,?)";
-                        PreparedStatement psch = con.prepareStatement(qch);
-                        psch.setString(1, currentUser);
-                        psch.setString(2, msgLine);
-                        psch.setString(3, targetUser);
-                        psch.executeUpdate();
+                        insertHistory(currentUser,msgLine,targetUser);
                     }
                     else {
                         targetIN.println("The user has not opened the chat window");
+                        insertHistory(currentUser,msgLine,targetUser);
                     }
                 }
             } else {
@@ -159,6 +155,18 @@ class clientHandler implements Runnable {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+        }
+    }
+    public void insertHistory(String currentUser,String msgLine,String targetUser){
+        try {
+            String qch = "INSERT INTO CHAT_HISTORY(SENDER,MESSAGE,RECIEVER) VALUES(?,?,?)";
+            PreparedStatement psch = con.prepareStatement(qch);
+            psch.setString(1, currentUser);
+            psch.setString(2, msgLine);
+            psch.setString(3, targetUser);
+            psch.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

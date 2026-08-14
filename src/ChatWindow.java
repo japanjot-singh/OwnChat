@@ -179,7 +179,7 @@ public class ChatWindow extends JFrame implements ActionListener {
                 String msg;
                 while ((msg = br.readLine()) != null) {
                     if ("The user has not opened the chat window".equals(msg)) {
-                        JOptionPane.showMessageDialog(this, "User has not opened the chat window");
+                        JOptionPane.showMessageDialog(this, "User has not opened the chat window.\nThe messages will be delivered when the chat window will open");
                     } else {
                         appendColoredText(sdate+" "+sstime, Color.BLACK, true);
                         appendColoredText(msg, Color.CYAN, true);
