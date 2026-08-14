@@ -62,7 +62,12 @@ public class ChatWindow extends JFrame implements ActionListener {
 
         c.add(BorderLayout.SOUTH, jp);
 
-
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                Contacts_List.online_fill(false);
+            }
+        });
         connectToserver();
 
     }
@@ -82,6 +87,7 @@ public class ChatWindow extends JFrame implements ActionListener {
         }
         if(ae.getSource() == contacts){
             Home.openClist(true);
+            Contacts_List.online_fill(false);
             this.dispose();
         }
 
