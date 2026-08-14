@@ -34,7 +34,7 @@ public class About extends JPanel {
         i1 = new ImageIcon(scaled);
         jli1= new JLabel(i1);
 
-        ImageIcon original1 = new ImageIcon(getClass().getResource("/images/Dev photo.png"));
+        ImageIcon original1 = new ImageIcon(getClass().getResource("/images/Dev Photo.png"));
         Image scaled1 = original1.getImage().getScaledInstance(400, 400, Image.SCALE_SMOOTH);
         i2 = new ImageIcon(scaled1);
         jli2= new JLabel(i2);
