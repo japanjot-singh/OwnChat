@@ -77,7 +77,11 @@ public class log extends JFrame implements ActionListener{
             pw.println("Check Theme");
             pw.println(clientSession.getUsername());
             String theme= br.readLine();
-            Settings.applyTheme(theme);
+            if (theme != null) {
+                SwingUtilities.invokeLater(() -> {
+                    Settings.applyTheme(theme);
+                });
+            }
 
         }
         catch (Exception e){
