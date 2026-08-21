@@ -99,15 +99,13 @@ A Self-Hosted Chat Application for Desktops (client->Server->client) using Java 
 
 ### (2) Setup the Server
 
-- Download and then extract the file
-- Drive link: https://drive.google.com/file/d/1lkBGSIt-n050f5GJULxcLdQ7NPnR2an-/view?usp=drive_link
+-  Download and then extract the file from Releases section
 - Run exe file
 - The Window will open then input the database username and password to connect
 
 ### (3) Setting up the Client(OwnChat App)
 
-- Download and then extract the file
-- Drive Link: https://drive.google.com/file/d/1vJmFy2Ok43sfttrJbP-6qSez8yrj6MAH/view?usp=sharing
+- Download and then extract the file from Releases section
 - Run the exe file
 - Go to set Server then input the IP Address of your Sever
 - Create account
