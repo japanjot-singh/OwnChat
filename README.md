@@ -99,13 +99,13 @@ A Self-Hosted Chat Application for Desktops (client->Server->client) using Java 
 
 ### (2) Setup the Server
 
--  Download and then extract the file from Releases section
+-  Download and then extract the file(OwnChatS-Portable.zip) from Releases section
 - Run exe file
 - The Window will open then input the database username and password to connect
 
 ### (3) Setting up the Client(OwnChat App)
 
-- Download and then extract the file from Releases section
+- Download and then extract the file(OwnChat-Portable.zip) from Releases section
 - Run the exe file
 - Go to set Server then input the IP Address of your Sever
 - Create account
