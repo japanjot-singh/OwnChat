@@ -122,6 +122,7 @@ A Self-Hosted Chat Application for Desktops (client->Server->client) using Java 
 
 ## Like OwnChat?
 If you like this project, please consider giving it a ⭐.
+
 <img width="600" height="338" alt="ownchat github video (2)" src="https://github.com/user-attachments/assets/c8f64ee1-f320-4639-aeae-3b3de2972f16" />
 
 ## Roadmap
