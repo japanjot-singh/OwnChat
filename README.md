@@ -2,10 +2,6 @@
 ## For those who yearn for freedom 🏳️
 A Self-Hosted Chat Application for Desktops (client->Server->client) using Java Swing and Sockets and Oracle Database.
 
-## Like OwnChat?
-If you like this project, please consider giving it a ⭐.
-<img width="600" height="338" alt="ownchat github video (2)" src="https://github.com/user-attachments/assets/c8f64ee1-f320-4639-aeae-3b3de2972f16" />
-
 ## Features
  
 - **Account creation & login** — usernames/passwords stored in `USER_DETAILS`, checked on login.
@@ -123,6 +119,10 @@ If you like this project, please consider giving it a ⭐.
 ## Important Points
 
 - For the client running on the same machine as server you do not need set server IP Address or just set as localhost if needed
+
+## Like OwnChat?
+If you like this project, please consider giving it a ⭐.
+<img width="600" height="338" alt="ownchat github video (2)" src="https://github.com/user-attachments/assets/c8f64ee1-f320-4639-aeae-3b3de2972f16" />
 
 ## Roadmap
  
