@@ -47,11 +47,11 @@ public class OwnChatLoadTest {
 
         printConfig(config);
 
-        String runId = "load_" + Instant.now().toEpochMilli() + "_"
-                + UUID.randomUUID().toString().replace("-", "").substring(0, 6);
+        String runId = "lt" + Long.toString(Instant.now().toEpochMilli(), 36)
+                + UUID.randomUUID().toString().replace("-", "").substring(0, 4);
         String[] usernames = new String[config.users];
         for (int i = 0; i < config.users; i++) {
-            usernames[i] = runId + "_u" + i;
+            usernames[i] = buildUsername(runId, i);
         }
 
         Metrics metrics = new Metrics();
@@ -285,6 +285,16 @@ public class OwnChatLoadTest {
         System.out.println("  java OwnChatLoadTest [host] [users] [durationSeconds] [messageIntervalMs] [password] [setupTimeoutMs] [chatReadTimeoutMs]");
         System.out.println("Defaults:");
         System.out.println("  host=127.0.0.1 users=10 durationSeconds=60 messageIntervalMs=1000 ****** setupTimeoutMs=10000 chatReadTimeoutMs=2000");
+    }
+
+    private static String buildUsername(String runId, int index) {
+        String prefix = "u" + index + "_";
+        int maxRunPart = 20 - prefix.length();
+        if (maxRunPart < 1) {
+            throw new IllegalArgumentException("User index is too large to fit username constraints");
+        }
+        String runPart = runId.length() <= maxRunPart ? runId : runId.substring(0, maxRunPart);
+        return prefix + runPart;
     }
 
     private static void awaitTermination(ExecutorService executor, String name) {
