@@ -7,6 +7,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,6 +26,8 @@ public class OwnChatLoadTest {
     private static final String DEFAULT_PASSWORD = "LoadTestPassword123";
     private static final int DEFAULT_SETUP_TIMEOUT_MS = 10000;
     private static final int DEFAULT_CHAT_SOCKET_TIMEOUT_MS = 2000;
+    private static final String DEFAULT_CHAT_MODE = "pair";
+    private static final int DEFAULT_SWITCH_INTERVAL_MS = 10000;
     private static final int PROGRESS_LOG_INTERVAL_SECONDS = 5;
 
     public static void main(String[] args) {
@@ -36,12 +40,7 @@ public class OwnChatLoadTest {
             return;
         }
 
-        if (config.users < 2) {
-            System.err.println("The number of users must be at least 2.");
-            return;
-        }
-        if (config.users % 2 != 0) {
-            System.err.println("The number of users must be even (e.g., 10, 20, 50). Received: " + config.users);
+        if (!validateUserCount(config)) {
             return;
         }
 
@@ -66,11 +65,13 @@ public class OwnChatLoadTest {
             return;
         }
 
+        String[][] targetsByUser = buildTargetsByUser(usernames, config.chatMode);
         ChatClient[] clients = new ChatClient[config.users];
         AtomicBoolean running = new AtomicBoolean(true);
 
         ExecutorService receiverPool = Executors.newFixedThreadPool(config.users);
         ScheduledExecutorService senderPool = Executors.newScheduledThreadPool(Math.max(2, Math.min(config.users, Runtime.getRuntime().availableProcessors() * 2)));
+        ScheduledExecutorService switchPool = Executors.newScheduledThreadPool(Math.max(1, Math.min(config.users, 4)));
         ScheduledExecutorService progressPool = Executors.newSingleThreadScheduledExecutor();
 
         long startedAt = System.currentTimeMillis();
@@ -80,14 +81,13 @@ public class OwnChatLoadTest {
             System.out.println("\n[Chat] Opening persistent chat sockets...");
             for (int i = 0; i < config.users; i++) {
                 String username = usernames[i];
-                String targetUser = usernames[(i % 2 == 0) ? i + 1 : i - 1];
                 try {
-                    ChatClient client = new ChatClient(config, username, targetUser);
+                    ChatClient client = new ChatClient(config, username, targetsByUser[i]);
                     client.connect();
                     clients[i] = client;
                 } catch (Exception e) {
                     metrics.chatConnectionFailures.incrementAndGet();
-                    System.err.println("[Chat] Connection failed for " + username + " -> " + targetUser + ": " + e.getMessage());
+                    System.err.println("[Chat] Connection failed for " + username + ": " + e.getMessage());
                 }
             }
 
@@ -126,6 +126,25 @@ public class OwnChatLoadTest {
                 }
             }
 
+            if ("triad".equals(config.chatMode)) {
+                System.out.println("[Chat] Starting target switch tasks (interval=" + config.switchIntervalMs + " ms)...");
+                for (ChatClient client : clients) {
+                    if (client != null && client.hasMultipleTargets()) {
+                        switchPool.scheduleAtFixedRate(() -> {
+                            if (!running.get()) {
+                                return;
+                            }
+                            try {
+                                client.switchToNextTarget();
+                            } catch (Exception e) {
+                                metrics.chatConnectionFailures.incrementAndGet();
+                                System.err.println("[SwitchError] " + client.username + ": " + e.getMessage());
+                            }
+                        }, config.switchIntervalMs, config.switchIntervalMs, TimeUnit.MILLISECONDS);
+                    }
+                }
+            }
+
             progressPool.scheduleAtFixedRate(() -> {
                 long elapsedSec = (System.currentTimeMillis() - startedAt) / 1000;
                 System.out.println("[Progress] elapsed=" + elapsedSec + "s"
@@ -153,10 +172,12 @@ public class OwnChatLoadTest {
             }
 
             senderPool.shutdownNow();
+            switchPool.shutdownNow();
             progressPool.shutdownNow();
             receiverPool.shutdownNow();
 
             awaitTermination(senderPool, "senderPool");
+            awaitTermination(switchPool, "switchPool");
             awaitTermination(progressPool, "progressPool");
             awaitTermination(receiverPool, "receiverPool");
         }
@@ -178,14 +199,16 @@ public class OwnChatLoadTest {
             }
         }
 
-        for (int i = 0; i < usernames.length; i += 2) {
-            String userA = usernames[i];
-            String userB = usernames[i + 1];
-            if (!addContact(config, userA, userB, metrics)) {
-                return false;
-            }
-            if (!addContact(config, userB, userA, metrics)) {
-                return false;
+        for (String[] group : buildSetupGroups(usernames, config.chatMode)) {
+            for (int i = 0; i < group.length; i++) {
+                for (int j = 0; j < group.length; j++) {
+                    if (i == j) {
+                        continue;
+                    }
+                    if (!addContact(config, group[i], group[j], metrics)) {
+                        return false;
+                    }
+                }
             }
         }
 
@@ -261,9 +284,17 @@ public class OwnChatLoadTest {
     private static void printConfig(Config config) {
         System.out.println("Starting OwnChat load test");
         System.out.println("Host: " + config.host + ":" + PORT);
-        System.out.println("Users: " + config.users + " (pairs=" + (config.users / 2) + ")");
+        if ("pair".equals(config.chatMode)) {
+            System.out.println("Users: " + config.users + " (pairs=" + (config.users / 2) + ")");
+        } else {
+            System.out.println("Users: " + config.users + " (triads=" + (config.users / 3) + ")");
+        }
+        System.out.println("Chat mode: " + config.chatMode);
         System.out.println("Duration: " + config.durationSeconds + " seconds");
         System.out.println("Message interval: " + config.messageIntervalMs + " ms");
+        if ("triad".equals(config.chatMode)) {
+            System.out.println("Target switch interval: " + config.switchIntervalMs + " ms");
+        }
         System.out.println("Setup timeout: " + config.setupTimeoutMs + " ms");
         System.out.println("Chat read timeout: " + config.chatSocketReadTimeoutMs + " ms");
     }
@@ -282,9 +313,9 @@ public class OwnChatLoadTest {
 
     private static void printUsage() {
         System.out.println("Usage:");
-        System.out.println("  java OwnChatLoadTest [host] [users] [durationSeconds] [messageIntervalMs] [password] [setupTimeoutMs] [chatReadTimeoutMs]");
+        System.out.println("  java OwnChatLoadTest [host] [users] [durationSeconds] [messageIntervalMs] [password] [setupTimeoutMs] [chatReadTimeoutMs] [chatMode] [switchIntervalMs]");
         System.out.println("Defaults:");
-        System.out.println("  host=127.0.0.1 users=10 durationSeconds=60 messageIntervalMs=1000 ****** setupTimeoutMs=10000 chatReadTimeoutMs=2000");
+        System.out.println("  host=127.0.0.1 users=10 durationSeconds=60 messageIntervalMs=1000 ****** setupTimeoutMs=10000 chatReadTimeoutMs=2000 chatMode=pair switchIntervalMs=10000");
     }
 
     private static String buildUsername(String runId, int index) {
@@ -308,6 +339,67 @@ public class OwnChatLoadTest {
         }
     }
 
+    private static boolean validateUserCount(Config config) {
+        if ("pair".equals(config.chatMode)) {
+            if (config.users < 2) {
+                System.err.println("For pair mode, users must be at least 2.");
+                return false;
+            }
+            if (config.users % 2 != 0) {
+                System.err.println("For pair mode, users must be even (e.g., 10, 20, 50). Received: " + config.users);
+                return false;
+            }
+            return true;
+        }
+
+        if ("triad".equals(config.chatMode)) {
+            if (config.users < 3) {
+                System.err.println("For triad mode, users must be at least 3.");
+                return false;
+            }
+            if (config.users % 3 != 0) {
+                System.err.println("For triad mode, users must be a multiple of 3 (e.g., 3, 6, 9). Received: " + config.users);
+                return false;
+            }
+            return true;
+        }
+
+        System.err.println("Unsupported chat mode: " + config.chatMode + ". Use 'pair' or 'triad'.");
+        return false;
+    }
+
+    private static List<String[]> buildSetupGroups(String[] usernames, String chatMode) {
+        List<String[]> groups = new ArrayList<>();
+        if ("pair".equals(chatMode)) {
+            for (int i = 0; i < usernames.length; i += 2) {
+                groups.add(new String[]{usernames[i], usernames[i + 1]});
+            }
+            return groups;
+        }
+
+        for (int i = 0; i < usernames.length; i += 3) {
+            groups.add(new String[]{usernames[i], usernames[i + 1], usernames[i + 2]});
+        }
+        return groups;
+    }
+
+    private static String[][] buildTargetsByUser(String[] usernames, String chatMode) {
+        String[][] targets = new String[usernames.length][];
+        if ("pair".equals(chatMode)) {
+            for (int i = 0; i < usernames.length; i++) {
+                targets[i] = new String[]{usernames[(i % 2 == 0) ? i + 1 : i - 1]};
+            }
+            return targets;
+        }
+
+        for (int i = 0; i < usernames.length; i += 3) {
+            targets[i] = new String[]{usernames[i + 1], usernames[i + 2]};
+            targets[i + 1] = new String[]{usernames[i + 2], usernames[i]};
+            targets[i + 2] = new String[]{usernames[i], usernames[i + 1]};
+        }
+        return targets;
+    }
+
     private static class Config {
         final String host;
         final int users;
@@ -316,6 +408,8 @@ public class OwnChatLoadTest {
         final String password;
         final int setupTimeoutMs;
         final int chatSocketReadTimeoutMs;
+        final String chatMode;
+        final int switchIntervalMs;
 
         Config(String host,
                int users,
@@ -323,7 +417,9 @@ public class OwnChatLoadTest {
                int messageIntervalMs,
                String password,
                int setupTimeoutMs,
-               int chatSocketReadTimeoutMs) {
+               int chatSocketReadTimeoutMs,
+               String chatMode,
+               int switchIntervalMs) {
             this.host = host;
             this.users = users;
             this.durationSeconds = durationSeconds;
@@ -331,6 +427,8 @@ public class OwnChatLoadTest {
             this.password = password;
             this.setupTimeoutMs = setupTimeoutMs;
             this.chatSocketReadTimeoutMs = chatSocketReadTimeoutMs;
+            this.chatMode = chatMode;
+            this.switchIntervalMs = switchIntervalMs;
         }
 
         static Config fromArgs(String[] args) {
@@ -341,7 +439,9 @@ public class OwnChatLoadTest {
             String password = getArg(args, 4, DEFAULT_PASSWORD);
             int setupTimeoutMs = parsePositiveInt(getArg(args, 5, String.valueOf(DEFAULT_SETUP_TIMEOUT_MS)), "setupTimeoutMs");
             int chatReadTimeoutMs = parsePositiveInt(getArg(args, 6, String.valueOf(DEFAULT_CHAT_SOCKET_TIMEOUT_MS)), "chatReadTimeoutMs");
-            return new Config(host, users, durationSeconds, messageIntervalMs, password, setupTimeoutMs, chatReadTimeoutMs);
+            String chatMode = normalizeChatMode(getArg(args, 7, DEFAULT_CHAT_MODE));
+            int switchIntervalMs = parsePositiveInt(getArg(args, 8, String.valueOf(DEFAULT_SWITCH_INTERVAL_MS)), "switchIntervalMs");
+            return new Config(host, users, durationSeconds, messageIntervalMs, password, setupTimeoutMs, chatReadTimeoutMs, chatMode, switchIntervalMs);
         }
 
         private static String getArg(String[] args, int index, String defaultValue) {
@@ -362,6 +462,10 @@ public class OwnChatLoadTest {
                 throw new IllegalArgumentException(name + " must be a valid integer: " + value);
             }
         }
+
+        private static String normalizeChatMode(String value) {
+            return value.trim().toLowerCase();
+        }
     }
 
     private static class Metrics {
@@ -375,36 +479,58 @@ public class OwnChatLoadTest {
 
     private static class ChatClient {
         final String username;
-        final String targetUser;
+        private volatile String targetUser;
+        private final String[] targetUsers;
+        private int currentTargetIndex;
         private final Config config;
+        private volatile boolean switching;
+        private final Object ioLock = new Object();
 
         private Socket socket;
         private BufferedReader reader;
         private PrintWriter writer;
 
-        ChatClient(Config config, String username, String targetUser) {
+        ChatClient(Config config, String username, String[] targetUsers) {
             this.config = config;
             this.username = username;
-            this.targetUser = targetUser;
+            this.targetUsers = targetUsers;
+            this.targetUser = targetUsers[0];
         }
 
         void connect() throws IOException {
-            socket = new Socket();
-            socket.connect(new InetSocketAddress(config.host, PORT), config.setupTimeoutMs);
-            socket.setSoTimeout(config.chatSocketReadTimeoutMs);
-
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-
-            writer.println("chat_connect");
-            writer.println(username);
-            writer.println(targetUser);
+            synchronized (ioLock) {
+                connectToTarget(targetUser);
+            }
         }
 
-        synchronized void sendMessage(String message) {
-            writer.println(message);
-            if (writer.checkError()) {
-                throw new IllegalStateException("Socket write failed");
+        boolean hasMultipleTargets() {
+            return targetUsers.length > 1;
+        }
+
+        void switchToNextTarget() throws IOException {
+            synchronized (ioLock) {
+                switching = true;
+                try {
+                    currentTargetIndex = (currentTargetIndex + 1) % targetUsers.length;
+                    String nextTarget = targetUsers[currentTargetIndex];
+                    closeSocketInternal();
+                    connectToTarget(nextTarget);
+                    targetUser = nextTarget;
+                } finally {
+                    switching = false;
+                }
+            }
+        }
+
+        void sendMessage(String message) {
+            synchronized (ioLock) {
+                if (writer == null) {
+                    throw new IllegalStateException("No active chat socket");
+                }
+                writer.println(message);
+                if (writer.checkError()) {
+                    throw new IllegalStateException("Socket write failed");
+                }
             }
         }
 
@@ -412,17 +538,29 @@ public class OwnChatLoadTest {
             try {
                 while (running.get()) {
                     try {
-                        String line = reader.readLine();
+                        BufferedReader currentReader = reader;
+                        if (currentReader == null) {
+                            Thread.sleep(50);
+                            continue;
+                        }
+                        String line = currentReader.readLine();
                         if (line == null) {
+                            if (running.get()) {
+                                Thread.sleep(50);
+                                continue;
+                            }
                             break;
                         }
                         metrics.messagesReceived.incrementAndGet();
                     } catch (SocketTimeoutException timeout) {
                         // Keep looping while running to allow responsive shutdown.
+                    } catch (InterruptedException interruptedException) {
+                        Thread.currentThread().interrupt();
+                        break;
                     }
                 }
             } catch (IOException e) {
-                if (running.get()) {
+                if (running.get() && !switching) {
                     metrics.receiveErrors.incrementAndGet();
                     System.err.println("[ReceiveError] " + username + " <- " + targetUser + ": " + e.getMessage());
                 }
@@ -430,12 +568,32 @@ public class OwnChatLoadTest {
         }
 
         void close() {
+            synchronized (ioLock) {
+                closeSocketInternal();
+            }
+        }
+
+        private void connectToTarget(String target) throws IOException {
+            socket = new Socket();
+            socket.connect(new InetSocketAddress(config.host, PORT), config.setupTimeoutMs);
+            socket.setSoTimeout(config.chatSocketReadTimeoutMs);
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+            writer.println("chat_connect");
+            writer.println(username);
+            writer.println(target);
+        }
+
+        private void closeSocketInternal() {
             if (socket != null) {
                 try {
                     socket.close();
                 } catch (IOException ignored) {
                 }
             }
+            socket = null;
+            reader = null;
+            writer = null;
         }
     }
 }

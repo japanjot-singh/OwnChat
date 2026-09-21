@@ -122,10 +122,11 @@ A Self-Hosted Chat Application for Desktops (client->Server->client) using Java 
 
 1. Create Account
 2. Log In
-3. Add Contacts (both directions for each pair)
+3. Add Contacts (both directions for each pair/triad)
 4. Open persistent `chat_connect` sockets
 5. Send and receive messages for the configured duration
-6. Close sockets and shut down executors
+6. (Triad mode) periodically switch active chat target to simulate going back and choosing another contact
+7. Close sockets and shut down executors
 
 ### Prerequisites
 
@@ -147,6 +148,8 @@ Before running the load test:
 5. `password` (default: `LoadTestPassword123`)
 6. `setupTimeoutMs` (default: `10000`)
 7. `chatReadTimeoutMs` (default: `2000`)
+8. `chatMode` (`pair` or `triad`, default: `pair`)
+9. `switchIntervalMs` (default: `10000`; used for `triad` mode target switching)
 
 ### IntelliJ Run
 
@@ -157,6 +160,7 @@ Before running the load test:
    - `127.0.0.1 10 60 1000`
    - `127.0.0.1 20 60 1000`
    - `127.0.0.1 50 60 1000`
+   - `127.0.0.1 6 60 1000 LoadTestPassword123 30000 5000 triad 8000`
 
 ### Command Line Build/Run
 
@@ -173,7 +177,14 @@ More examples:
 ```bash
 java -cp out OwnChatLoadTest 127.0.0.1 20 60 1000
 java -cp out OwnChatLoadTest 127.0.0.1 50 60 1000
+java -cp out OwnChatLoadTest 127.0.0.1 6 60 1000 LoadTestPassword123 30000 5000 triad 8000
 ```
+
+Mode notes:
+
+- `pair` mode: users chat in fixed pairs (`u0↔u1`, `u2↔u3`, ...).
+- `triad` mode: users are grouped in 3s and each user alternates chat targets (example: `u0→u1`, then `u0→u2`, then back to `u1`), simulating contact switching.
+- For `pair` mode, users must be even. For `triad` mode, users must be a multiple of 3.
 
 To rebuild all project classes (including the new load-test class) without omitting files:
 
