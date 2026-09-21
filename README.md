@@ -116,6 +116,98 @@ A Self-Hosted Chat Application for Desktops (client->Server->client) using Java 
 - Select the contact then hit connect if the user is online the chat window will open
 - Chat Freely
 
+## Load Testing
+
+`src/OwnChatLoadTest.java` is a self-contained utility that reproduces the real OwnChat flow for generated test users:
+
+1. Create Account
+2. Log In
+3. Add Contacts (both directions for each pair)
+4. Open persistent `chat_connect` sockets
+5. Send and receive messages for the configured duration
+6. Close sockets and shut down executors
+
+### Prerequisites
+
+Before running the load test:
+
+1. Start Oracle Database.
+2. Initialize the schema with `src/OwnChatDB.sql`.
+3. Start `ServerL` and set DB username/password in the server UI.
+4. Ensure your server and DB credentials are configured for your own environment.
+
+### Argument Order
+
+`OwnChatLoadTest` accepts positional arguments in this exact order:
+
+1. `host` (default: `127.0.0.1`)
+2. `users` (default: `10`, must be even)
+3. `durationSeconds` (default: `60`)
+4. `messageIntervalMs` (default: `1000`)
+5. `password` (default: `LoadTestPassword123`)
+6. `setupTimeoutMs` (default: `10000`)
+7. `chatReadTimeoutMs` (default: `2000`)
+
+### IntelliJ Run
+
+1. Open the project.
+2. Run `ServerL` first.
+3. Create a run configuration for `OwnChatLoadTest`.
+4. Example Program Arguments:
+   - `127.0.0.1 10 60 1000`
+   - `127.0.0.1 20 60 1000`
+   - `127.0.0.1 50 60 1000`
+
+### Command Line Build/Run
+
+From repository root:
+
+```bash
+mkdir -p out
+javac -d out src/OwnChatLoadTest.java
+java -cp out OwnChatLoadTest 127.0.0.1 10 60 1000
+```
+
+More examples:
+
+```bash
+java -cp out OwnChatLoadTest 127.0.0.1 20 60 1000
+java -cp out OwnChatLoadTest 127.0.0.1 50 60 1000
+```
+
+To rebuild all project classes (including the new load-test class) without omitting files:
+
+```bash
+mkdir -p out
+javac -d out src/*.java
+```
+
+If your environment does not have Oracle JDBC configured, full-project compilation may fail for server/client classes. In that case, compile `src/OwnChatLoadTest.java` directly as shown above.
+
+### What to Watch During the Test
+
+The utility prints periodic progress and final summary metrics:
+
+- setup failures
+- chat connection failures
+- messages sent
+- messages received
+- send errors
+- receive errors
+- elapsed time
+
+Failure signals to monitor:
+
+- setup responses not matching expected protocol (`Saved`/`Exists`, `found`, `Added`)
+- rising connection/send/receive errors
+- server exceptions
+- Oracle session/connection limit issues (the server opens a DB connection per request/handler)
+
+### Safety Notes
+
+- Test only systems and infrastructure you own or are explicitly authorized to test.
+- Increase load gradually (for example 10 → 20 → 50 users) instead of jumping directly to high concurrency.
+
 ## Important Points
 
 - For the client running on the same machine as server you do not need set server IP Address or just set as localhost if needed
@@ -134,4 +226,3 @@ A web-based version of OwnChat is planned, built up in stages: Servlets → JSP 
 **Japanjot Singh**
 
 Email: japanjotsingh90@outlook.com
-
