@@ -30,3 +30,4 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+.codex-tmp

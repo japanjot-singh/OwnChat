@@ -72,6 +72,7 @@ public class Contacts_List extends JFrame implements ActionListener {
                 ch.setTitle(clientSession.getUsername()+" Chatting with "+tn);
                 onWindow=true;
                 online_fill(onWindow);
+                this.dispose();
                 ch.setVisible(true);
             }
             else {

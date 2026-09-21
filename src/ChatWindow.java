@@ -66,6 +66,7 @@ public class ChatWindow extends JFrame implements ActionListener {
             @Override
             public void windowClosing(WindowEvent e) {
                 Contacts_List.online_fill(false);
+                disconnectChat();
             }
         });
         connectToserver();
@@ -76,6 +77,7 @@ public class ChatWindow extends JFrame implements ActionListener {
         if (ae.getSource() == back) {
             Contacts_List.onWindow = false;
             Contacts_List.online_fill(Contacts_List.onWindow);
+            disconnectChat();
             this.dispose();
         }
         if (ae.getSource() == send) {
@@ -88,6 +90,7 @@ public class ChatWindow extends JFrame implements ActionListener {
         if(ae.getSource() == contacts){
             Home.openClist(true);
             Contacts_List.online_fill(false);
+            disconnectChat();
             this.dispose();
         }
 
@@ -192,4 +195,12 @@ public class ChatWindow extends JFrame implements ActionListener {
 
         }).start();
     }
+     public void disconnectChat(){
+        try{
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+     }
+
 }
