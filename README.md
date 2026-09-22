@@ -41,8 +41,9 @@ A Self-Hosted Chat Application for Desktops (client->Server->client) using Java 
 
 ### Chat Window
 
-<img width="891" height="554" alt="NCH1" src="https://github.com/user-attachments/assets/04e47335-27ed-4a98-bfef-9004ce3553b3" />
-<img width="889" height="554" alt="NCH2" src="https://github.com/user-attachments/assets/eed610a7-f523-4d96-b6ad-25dc6d48766f" />
+<img width="887" height="551" alt="NCH1" src="https://github.com/user-attachments/assets/efce754c-9ec0-4bae-87ce-6771a5515606" />
+
+<img width="887" height="551" alt="NCH1" src="https://github.com/user-attachments/assets/bd8fb709-089f-411f-8917-35ca923d29ef" />
 
 ### Server
 
