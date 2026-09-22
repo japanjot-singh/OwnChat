@@ -98,6 +98,41 @@ A Self-Hosted Chat Application for Desktops (client->Server->client) using Java 
 - Download Oracle
 - Run the OwnchatDB.sql File (excluding the statements of drop table; are only for dropping in case there is an issue or you want to alter)
 
+#### Oracle XE capacity tuning for higher user-count tests
+
+If load testing fails with Oracle session errors (for example `ORA-12519`), increase Oracle process/session limits and restart Oracle services.
+
+1. Open SQL*Plus as SYSDBA:
+
+```cmd
+sqlplus / as sysdba
+```
+
+2. Check current limits:
+
+```sql
+SELECT name, value FROM v$parameter WHERE name IN ('processes','sessions');
+```
+
+3. Increase limits (example values used during testing):
+
+```sql
+ALTER SYSTEM SET processes=300 SCOPE=SPFILE;
+ALTER SYSTEM SET sessions=335 SCOPE=SPFILE;
+EXIT;
+```
+
+4. Restart Oracle XE services (Windows Command Prompt as Administrator):
+
+```cmd
+net stop OracleXETNSListener
+net stop OracleServiceXE
+net start OracleServiceXE
+net start OracleXETNSListener
+```
+
+5. Verify updated values again in SQL*Plus.
+
 ### (2) Setup the Server
 
 -  Download and then extract the file(OwnChatS-Portable.zip) from Releases section
@@ -117,6 +152,122 @@ A Self-Hosted Chat Application for Desktops (client->Server->client) using Java 
 - Select the contact then hit connect if the user is online the chat window will open
 - Chat Freely
 
+## Load Testing
+
+`src/OwnChatLoadTest.java` is a self-contained utility that reproduces the real OwnChat flow for generated test users:
+
+1. Create Account
+2. Log In
+3. Add Contacts (both directions for each pair/triad)
+4. Open persistent `chat_connect` sockets
+5. Send and receive messages for the configured duration
+6. (Triad mode) periodically switch active chat target to simulate going back and choosing another contact
+7. Close sockets and shut down executors
+
+### Prerequisites
+
+Before running the load test:
+
+1. Start Oracle Database.
+2. Initialize the schema with `src/OwnChatDB.sql`.
+3. Start `ServerL` and set DB username/password in the server UI.
+4. Ensure your server and DB credentials are configured for your own environment.
+
+### Argument Order
+
+`OwnChatLoadTest` accepts positional arguments in this exact order:
+
+1. `host` (default: `127.0.0.1`)
+2. `users` (default: `10`, must be even)
+3. `durationSeconds` (default: `60`)
+4. `messageIntervalMs` (default: `1000`)
+5. `password` (default: `LoadTestPassword123`)
+6. `setupTimeoutMs` (default: `10000`)
+7. `chatReadTimeoutMs` (default: `2000`)
+8. `chatMode` (`pair` or `triad`, default: `pair`)
+9. `switchIntervalMs` (default: `10000`; used for `triad` mode target switching)
+
+### IntelliJ Run
+
+1. Open the project.
+2. Run `ServerL` first.
+3. Create a run configuration for `OwnChatLoadTest`.
+4. Example Program Arguments:
+   - `127.0.0.1 10 60 1000`
+   - `127.0.0.1 20 60 1000`
+   - `127.0.0.1 50 60 1000`
+   - `127.0.0.1 6 60 1000 LoadTestPassword123 30000 5000 triad 8000`
+
+### Command Line Build/Run
+
+From repository root:
+
+```bash
+mkdir -p out
+javac -d out src/OwnChatLoadTest.java
+java -cp out OwnChatLoadTest 127.0.0.1 10 60 1000
+```
+
+More examples:
+
+```bash
+java -cp out OwnChatLoadTest 127.0.0.1 20 60 1000
+java -cp out OwnChatLoadTest 127.0.0.1 50 60 1000
+java -cp out OwnChatLoadTest 127.0.0.1 6 60 1000 LoadTestPassword123 30000 5000 triad 8000
+```
+
+Mode notes:
+
+- `pair` mode: users chat in fixed pairs (`u0↔u1`, `u2↔u3`, ...).
+- `triad` mode: users are grouped in 3s and each user alternates chat targets (example: `u0→u1`, then `u0→u2`, then back to `u1`), simulating contact switching.
+- For `pair` mode, users must be even. For `triad` mode, users must be a multiple of 3.
+
+What triad-mode success means:
+
+- A successful triad run indicates the backend protocol path for switching active chat targets is working under load.
+- It does **not** by itself guarantee every GUI behavior (window open/close timing, user click races, rendering) is perfect; run manual GUI checks for those.
+
+More advanced combinations to test:
+
+- `pair` mode with high fan-out users (for example 50/100/200 users).
+- `triad` mode with shorter switch intervals (for example `2000` ms, `1000` ms).
+- Longer-duration runs (10+ minutes) to observe stability/leaks.
+- Bursty traffic by lowering `messageIntervalMs` (for example `200`, `100`).
+- Mixed runs: first pair mode baseline, then triad mode at same user count to compare error rates and throughput.
+
+To rebuild all project classes (including the new load-test class) without omitting files:
+
+```bash
+mkdir -p out
+javac -d out src/*.java
+```
+
+If your environment does not have Oracle JDBC configured, full-project compilation may fail for server/client classes. In that case, compile `src/OwnChatLoadTest.java` directly as shown above.
+
+### What to Watch During the Test
+
+The utility prints periodic progress and final summary metrics:
+
+- setup failures
+- chat connection failures
+- messages sent
+- messages received
+- send errors
+- receive errors
+- elapsed time
+
+Failure signals to monitor:
+
+- setup responses not matching expected protocol (`Saved`/`Exists`, `found`, `Added`)
+- rising connection/send/receive errors
+- server exceptions
+- Oracle session/connection limit issues (the server opens a DB connection per request/handler)
+
+### Safety Notes
+
+- Test only systems and infrastructure you own or are explicitly authorized to test.
+- Increase load gradually (for example 10 → 20 → 50 users) instead of jumping directly to high concurrency.
+
 ## Important Points
 
 - For the client running on the same machine as server you do not need set server IP Address or just set as localhost if needed
@@ -135,4 +286,3 @@ A web-based version of OwnChat is planned, built up in stages: Servlets → JSP 
 **Japanjot Singh**
 
 Email: japanjotsingh90@outlook.com
-
