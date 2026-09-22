@@ -43,7 +43,7 @@ A Self-Hosted Chat Application for Desktops (client->Server->client) using Java 
 
 <img width="887" height="551" alt="NCH1" src="https://github.com/user-attachments/assets/efce754c-9ec0-4bae-87ce-6771a5515606" />
 
-<img width="887" height="551" alt="NCH1" src="https://github.com/user-attachments/assets/bd8fb709-089f-411f-8917-35ca923d29ef" />
+<img width="889" height="554" alt="NCH2" src="https://github.com/user-attachments/assets/b9f020ad-d4a9-4436-ac46-af6a7da56224" />
 
 ### Server
 
