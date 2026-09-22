@@ -123,17 +123,24 @@ class clientHandler implements Runnable {
                 if (currentUser != null) {
                     chatUsers.put(currentUser, out);
                 }
+                String flagline;
                 String msgLine;
-                while ((msgLine = br.readLine()) != null) {
+                while ((flagline = br.readLine()) != null) {
+                    msgLine=br.readLine();
+                    if(msgLine == null) break;
                     PrintWriter targetOut = chatUsers.get(targetUser);
                     PrintWriter targetIN = chatUsers.get(currentUser);
                     if (targetOut != null) {
                         targetOut.println(msgLine);
-                        insertHistory(currentUser,msgLine,targetUser);
+                        if(flagline.equals("notv")){
+                            insertHistory(currentUser,msgLine,targetUser);
+                        }
                     }
                     else {
                         targetIN.println("The user has not opened the chat window");
-                        insertHistory(currentUser,msgLine,targetUser);
+                        if(flagline.equals("notv")){
+                            insertHistory(currentUser,msgLine,targetUser);
+                        }
                     }
                 }
             } else {

@@ -13,6 +13,7 @@ public class ChatWindow extends JFrame implements ActionListener {
     JTextArea jtth;
     JScrollPane jspcb, jspth;
     JButton send, back, contacts;
+    JToggleButton otv;
     JPanel jp;
     BufferedReader br;
     PrintWriter pw;
@@ -22,6 +23,7 @@ public class ChatWindow extends JFrame implements ActionListener {
      public LocalTime time;
     String sdate;
     String sstime;
+    boolean otvb=false;
 
 
     ChatWindow(String othName) {
@@ -56,9 +58,13 @@ public class ChatWindow extends JFrame implements ActionListener {
         send = new JButton("Send");
         send.addActionListener(this);
 
+        otv= new JToggleButton("One time View");
+        otv.addActionListener(this);
+
         jp.add(BorderLayout.NORTH, jl2);
         jp.add(BorderLayout.CENTER, jspth);
         jp.add(BorderLayout.SOUTH, send);
+        jp.add(BorderLayout.EAST,otv);
 
         c.add(BorderLayout.SOUTH, jp);
 
@@ -80,12 +86,20 @@ public class ChatWindow extends JFrame implements ActionListener {
             disconnectChat();
             this.dispose();
         }
-        if (ae.getSource() == send) {
+        if (ae.getSource() == send ) {
+            if(otv.isSelected()){
+                otvb=true;
+                pw.println("otv");
+            }
+            else {
+                pw.println("notv");
+            }
             String text = jtth.getText();
             appendColoredText(sdate+" "+sstime, Color.BLACK, true);
             appendColoredText(text, Color.green, true);
             pw.println(text);
             jtth.setText("");
+            otv.setSelected(false);
         }
         if(ae.getSource() == contacts){
             Home.openClist(true);
