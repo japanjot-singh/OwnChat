@@ -117,6 +117,287 @@ A Self-Hosted Chat Application for Desktops (client->Server->client) using Java 
 - Select the contact then hit connect if the user is online the chat window will open
 - Chat Freely
 
+## Optional Cloud Deployment: Run Your Own Server on a Virtual Machine
+
+> [!IMPORTANT]
+> OwnChat stays self-hosted and decentralized. There is no shared central OwnChat server in this model.  
+> Each user/group/school/organization/team runs **its own** independent OwnChat server + Oracle database.
+
+### Architecture note
+
+- Client app runs on user devices.
+- OwnChat Java server runs on **your** VM.
+- Oracle DB runs on the **same VM** in Docker and should stay private (`127.0.0.1:1521`).
+- Clients connect to your VM public IP on port `4567`.
+
+### Prerequisites
+
+- Cloud account (example: Azure subscription)
+- Ubuntu VM (tested workflow: Azure Ubuntu)
+- Public IP for the VM
+- SSH access (username + SSH key or password)
+- Enough resources (at least enough RAM/disk for Oracle + Java server; monitor disk usage)
+- Java installed on VM
+- Docker installed on VM
+- Oracle Container Registry account/access for `container-registry.oracle.com/database/free:latest`
+
+### 1) Create the Ubuntu VM and record details
+
+Record these values for later commands:
+
+- `YOUR_RESOURCE_GROUP`
+- `YOUR_VM_NAME`
+- `YOUR_VM_USERNAME`
+- `YOUR_PUBLIC_IP`
+- SSH method (password or key)
+
+### 2) Configure VM inbound networking rules
+
+Allow:
+
+- TCP `22` (SSH)
+- TCP `4567` (OwnChat server)
+
+> [!WARNING]
+> Do **not** expose Oracle TCP `1521` publicly. Keep Oracle private (localhost/private network only).
+
+### 3) SSH in and install Docker
+
+```bash
+ssh YOUR_VM_USERNAME@YOUR_PUBLIC_IP
+sudo apt update
+sudo apt install -y docker.io
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+```
+
+If Docker commands fail without `sudo`, log out and reconnect:
+
+```bash
+exit
+ssh YOUR_VM_USERNAME@YOUR_PUBLIC_IP
+docker ps
+```
+
+### 4) Pull Oracle Free image and run Oracle container
+
+```bash
+docker login container-registry.oracle.com
+docker pull container-registry.oracle.com/database/free:latest
+docker volume create oracle-data
+docker run -d \
+  --name oracle-free \
+  --restart unless-stopped \
+  -p 127.0.0.1:1521:1521 \
+  -e ORACLE_PWD='YOUR_STRONG_ORACLE_PASSWORD' \
+  -v oracle-data:/opt/oracle/oradata \
+  container-registry.oracle.com/database/free:latest
+```
+
+### 5) Wait for readiness and verify Oracle port locally
+
+Wait until logs show the exact message:
+
+`DATABASE IS READY TO USE!`
+
+```bash
+docker logs -f oracle-free
+```
+
+Stop log streaming with `Ctrl+C`, then verify:
+
+```bash
+docker ps
+ss -ltn | grep 1521
+```
+
+Expected local binding:
+
+- `127.0.0.1:1521`
+- container status includes `healthy`
+
+### 6) Create `HR` user in `FREEPDB1` and grant required privileges/quota
+
+```bash
+docker exec -it oracle-free sqlplus / as sysdba
+```
+
+```sql
+ALTER SESSION SET CONTAINER=FREEPDB1;
+CREATE USER HR IDENTIFIED BY YOUR_STRONG_HR_PASSWORD;
+GRANT CONNECT, RESOURCE, CREATE VIEW TO HR;
+ALTER USER HR QUOTA UNLIMITED ON USERS;
+EXIT;
+```
+
+> [!WARNING]
+> If quota is missing, account creation can fail with `ORA-01950: insufficient quota on tablespace USERS`.
+
+### 7) Prepare and import `OwnChatDB.sql` safely
+
+- Use schema creation statements from `OwnChatDB.sql`.
+- If preserving existing data, remove destructive reset statements (`DELETE`, `DROP`, full reset blocks).
+- Keep schema definitions and constraints (including `ON DELETE CASCADE`)—these are not executable delete operations by themselves.
+
+Import:
+
+```bash
+sqlplus hr/YOUR_STRONG_HR_PASSWORD@//localhost:1521/FREEPDB1 @/path/to/OwnChatDB.sql
+```
+
+If a trigger shows compile warnings, investigate/fix it if related features fail:
+
+```bash
+sqlplus hr/YOUR_STRONG_HR_PASSWORD@//localhost:1521/FREEPDB1
+```
+
+```sql
+SELECT object_name, object_type, status
+FROM user_objects
+WHERE status <> 'VALID';
+
+SELECT name, type, line, position, text
+FROM user_errors
+ORDER BY name, sequence;
+```
+
+### 8) Update JDBC URL, compile, and start OwnChat server
+
+In `ServerL.java`, use `FREEPDB1` service format instead of old XE format:
+
+- Old: `jdbc:oracle:thin:@localhost:1521:xe`
+- New: `jdbc:oracle:thin:@//localhost:1521/FREEPDB1`
+
+Compile and run:
+
+```bash
+javac -cp ojdbc17.jar:. ServerL.java
+nohup env DB_USER='hr' DB_PASSWORD='YOUR_STRONG_HR_PASSWORD' \
+java -cp ojdbc17.jar:. ServerL > ~/ownchat.log 2>&1 < /dev/null &
+```
+
+Verify:
+
+```bash
+pgrep -af ServerL
+tail -n 50 ~/ownchat.log
+ss -ltnp | grep 4567
+```
+
+### 9) Configure systemd so server auto-starts after VM reboot
+
+Avoid hardcoding secrets in the service file. Put credentials in a root-protected env file.
+
+```bash
+sudo tee /etc/ownchat.env > /dev/null <<'EOF'
+DB_USER=hr
+DB_PASSWORD=YOUR_STRONG_HR_PASSWORD
+EOF
+sudo chmod 600 /etc/ownchat.env
+```
+
+```bash
+sudo tee /etc/systemd/system/ownchat.service > /dev/null <<'EOF'
+[Unit]
+Description=OwnChat Java Server
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+User=YOUR_VM_USERNAME
+WorkingDirectory=/home/YOUR_VM_USERNAME
+EnvironmentFile=/etc/ownchat.env
+ExecStartPre=/bin/sh -c 'until nc -z 127.0.0.1 1521; do sleep 2; done'
+ExecStart=/usr/bin/java -cp /home/YOUR_VM_USERNAME/ojdbc17.jar:. ServerL
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/YOUR_VM_USERNAME/ownchat.log
+StandardError=append:/home/YOUR_VM_USERNAME/ownchat.log
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+```bash
+sudo apt install -y netcat-openbsd
+sudo systemctl daemon-reload
+sudo systemctl enable --now ownchat
+sudo systemctl status ownchat --no-pager
+```
+
+### 10) Configure clients to use your VM and test from another network
+
+- In OwnChat client, set server IP to `YOUR_PUBLIC_IP`
+- Use port `4567` if the UI asks for port
+- Test from a different network/device when possible
+
+Windows check:
+
+```powershell
+Test-NetConnection YOUR_PUBLIC_IP -Port 4567
+```
+
+`TcpTestSucceeded : True` indicates network reachability.
+
+> [!NOTE]
+> The client connects to **your own VM server**, not to a central OwnChat service.
+
+### 11) Lifecycle and cost control
+
+- Start/deallocate VM as needed to reduce compute cost.
+- Public IP may change after stop/deallocate unless you reserve a static IP.
+- After start/reboot, verify stack:
+
+```bash
+docker ps
+sudo systemctl status ownchat --no-pager
+ss -ltnp | grep 4567
+```
+
+### 12) Backup and retrieval guidance
+
+Recommended: Oracle Data Pump export of live schema data.
+
+```bash
+docker exec oracle-free mkdir -p /opt/oracle/dpump
+docker exec -it oracle-free sqlplus / as sysdba
+```
+
+```sql
+ALTER SESSION SET CONTAINER=FREEPDB1;
+CREATE OR REPLACE DIRECTORY OWNCHAT_DUMP AS '/opt/oracle/dpump';
+GRANT READ, WRITE ON DIRECTORY OWNCHAT_DUMP TO HR;
+EXIT;
+```
+
+```bash
+docker exec -it oracle-free expdp \
+  'hr/YOUR_STRONG_HR_PASSWORD@//localhost:1521/FREEPDB1' \
+  DIRECTORY=OWNCHAT_DUMP \
+  DUMPFILE=ownchat_hr.dmp \
+  LOGFILE=ownchat_hr.log \
+  SCHEMAS=HR
+docker cp oracle-free:/opt/oracle/dpump/ownchat_hr.dmp ~/ownchat_hr.dmp
+docker cp oracle-free:/opt/oracle/dpump/ownchat_hr.log ~/ownchat_hr.log
+```
+
+At minimum, you can copy `OwnChatDB.sql`, but remember:
+
+- `OwnChatDB.sql` is schema/setup SQL
+- it does **not** contain live chat/account data
+
+### 13) Troubleshooting (common issues)
+
+- **Port `4567` already in use**: duplicate `ServerL` process.  
+  Check `pgrep -af ServerL`; stop old process before restarting.
+- **Oracle port refused**: container still starting.  
+  Wait for `DATABASE IS READY TO USE!` and `healthy`.
+- **JDBC mismatch (`xe` vs `FREEPDB1`)**: update URL to `jdbc:oracle:thin:@//localhost:1521/FREEPDB1`.
+- **`ORA-01950` quota error**: run `ALTER USER HR QUOTA UNLIMITED ON USERS;` in `FREEPDB1`.
+- **Client cannot connect from internet**: verify Azure NSG allows inbound TCP `4567`.
+- **Disk pressure on VM**: monitor with `df -h`; Oracle images/data need space.
+
 ## Important Points
 
 - For the client running on the same machine as server you do not need set server IP Address or just set as localhost if needed
@@ -135,4 +416,3 @@ A web-based version of OwnChat is planned, built up in stages: Servlets → JSP 
 **Japanjot Singh**
 
 Email: japanjotsingh90@outlook.com
-
