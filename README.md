@@ -120,69 +120,99 @@ A Self-Hosted Chat Application for Desktops (client->Server->client) using Java 
 ## Optional Cloud Deployment: Run Your Own Server on a Virtual Machine
 
 > [!IMPORTANT]
-> OwnChat stays self-hosted and decentralized. There is no shared central OwnChat server in this model.  
-> Each user/group/school/organization/team runs **its own** independent OwnChat server + Oracle database.
+> OwnChat stays self-hosted and decentralized.
+> There is no OwnChat-managed central server in this model.
+> If you use cloud, you still deploy and operate **your own** VM, **your own** Oracle database, and **your own** OwnChat server.
 
-### Architecture note
+### When to choose cloud deployment
+
+- **Same LAN / same local network:** run OwnChat server + Oracle locally/on-prem, then clients use the local/private address.
+- **Different networks / Internet users:** deploy your own OwnChat stack on your own cloud VM (example: Microsoft Azure), then clients connect to your VM public IP on port `4567`.
+- Cloud VM is optional and useful when you cannot host reliably on a local machine or need cross-network access.
+
+### Architecture note (still self-hosted)
 
 - Client app runs on user devices.
 - OwnChat Java server runs on **your** VM.
-- Oracle DB runs on the **same VM** in Docker and should stay private (`127.0.0.1:1521`).
-- Clients connect to your VM public IP on port `4567`.
+- Oracle runs on the **same VM** in Docker and should stay private (`127.0.0.1:1521`).
+- Clients connect to your VM public IP on `4567`.
 
-### Prerequisites
+### 1) Microsoft Azure setup: account, subscription, resource group, VM
 
-- Cloud account (example: Azure subscription)
-- Ubuntu VM (tested workflow: Azure Ubuntu)
-- Public IP for the VM
-- SSH access (username + SSH key or password)
-- Enough resources (at least enough RAM/disk for Oracle + Java server; monitor disk usage)
-- Java installed on VM
-- Docker installed on VM
-- Oracle Container Registry account/access for `container-registry.oracle.com/database/free:latest`
+1. Create/sign in to Azure account.
+2. Select/create a subscription (`YOUR_SUBSCRIPTION`).
+3. Create/select a resource group (`YOUR_RESOURCE_GROUP`).
+4. Create VM (`YOUR_VM_NAME`) with image **Ubuntu 24.04 LTS**.
+5. Choose a practical small size for initial testing (for example, a small general-purpose VM) and ensure enough RAM/disk for Docker + Oracle + Java. Do not assume fixed performance; monitor real usage.
+6. Record these values for later:
+   - `YOUR_SUBSCRIPTION`
+   - `YOUR_RESOURCE_GROUP`
+   - `YOUR_VM_NAME`
+   - `YOUR_VM_USERNAME`
+   - `YOUR_REGION`
+   - authentication method (SSH key preferred)
+   - `YOUR_PUBLIC_IP`
 
-### 1) Create the Ubuntu VM and record details
+> [!NOTE]
+> Prefer SSH key authentication for security. Password auth can be used for learning/testing, but is less secure.
 
-Record these values for later commands:
+### 2) Azure networking (NSG) and public IP behavior
 
-- `YOUR_RESOURCE_GROUP`
-- `YOUR_VM_NAME`
-- `YOUR_VM_USERNAME`
-- `YOUR_PUBLIC_IP`
-- SSH method (password or key)
+Create/check NSG inbound rules:
 
-### 2) Configure VM inbound networking rules
-
-Allow:
-
-- TCP `22` (SSH)
-- TCP `4567` (OwnChat server)
+- Allow TCP `22` for SSH (restrict source IP/CIDR where practical).
+- Allow TCP `4567` for OwnChat client traffic (restrict source ranges where practical).
+- Do **not** allow public inbound TCP `1521`.
 
 > [!WARNING]
-> Do **not** expose Oracle TCP `1521` publicly. Keep Oracle private (localhost/private network only).
+> Oracle port `1521` is for local VM/container DB access. Keep it bound to `127.0.0.1` and do not expose it to the Internet.
 
-### 3) SSH in and install Docker
+Find `YOUR_PUBLIC_IP` in Azure VM overview (Networking/Overview). If the VM is deallocated and IP is dynamic, it can change. Use a static/reserved public IP to keep it stable.
+
+> [!NOTE]
+> `ufw` being inactive does **not** replace Azure NSG rules. VM firewall and NSG are separate layers; enforce both as needed.
+
+### 3) SSH from Windows and install Docker on Ubuntu VM
+
+```powershell
+ssh YOUR_VM_USERNAME@YOUR_PUBLIC_IP
+```
 
 ```bash
-ssh YOUR_VM_USERNAME@YOUR_PUBLIC_IP
 sudo apt update
 sudo apt install -y docker.io
 sudo systemctl enable --now docker
 sudo usermod -aG docker $USER
 ```
 
-If Docker commands fail without `sudo`, log out and reconnect:
+Reconnect so docker group membership applies:
 
 ```bash
 exit
+```
+
+```powershell
 ssh YOUR_VM_USERNAME@YOUR_PUBLIC_IP
+```
+
+```bash
 docker ps
 ```
 
-### 4) Pull Oracle Free image and run Oracle container
+### 4) Oracle Container Registry login (credential pitfalls)
 
 ```bash
 docker login container-registry.oracle.com
+```
+
+- This username/password is your Oracle account/registry credential (or generated registry token/secret), **not** your Ubuntu SSH password.
+- It is also **not automatically** your Oracle database password.
+- You may need to accept Oracle container license/terms in your Oracle account before pull succeeds.
+- If you forgot registry credentials, recover/reset through Oracle sign-in/account flow; do not post secrets publicly.
+
+### 5) Pull Oracle Free and run with persistent storage
+
+```bash
 docker pull container-registry.oracle.com/database/free:latest
 docker volume create oracle-data
 docker run -d \
@@ -194,29 +224,33 @@ docker run -d \
   container-registry.oracle.com/database/free:latest
 ```
 
-### 5) Wait for readiness and verify Oracle port locally
+> [!IMPORTANT]
+> `ORACLE_PWD` is chosen by **you** at `docker run` time and sets initial Oracle administrative account passwords in the container.
+> It is separate from Oracle registry login credentials/token, and not necessarily the `HR` app schema password unless you deliberately set them equal.
 
-Wait until logs show the exact message:
+> [!WARNING]
+> If you used a generated secret/token during registry login, store it securely now. Docker/Oracle may not show it again later.
 
-`DATABASE IS READY TO USE!`
+### 6) Wait for DB readiness and verify local Oracle port
 
 ```bash
 docker logs -f oracle-free
 ```
 
-Stop log streaming with `Ctrl+C`, then verify:
+Wait for `DATABASE IS READY TO USE!`, then `Ctrl+C` and verify:
 
 ```bash
 docker ps
-ss -ltn | grep 1521
+nc -vz 127.0.0.1 1521
 ```
 
-Expected local binding:
+If `nc` is missing:
 
-- `127.0.0.1:1521`
-- container status includes `healthy`
+```bash
+sudo apt install -y netcat-openbsd
+```
 
-### 6) Create `HR` user in `FREEPDB1` and grant required privileges/quota
+### 7) SQL*Plus setup in FREEPDB1 (HR user, grants, quota)
 
 ```bash
 docker exec -it oracle-free sqlplus / as sysdba
@@ -224,20 +258,51 @@ docker exec -it oracle-free sqlplus / as sysdba
 
 ```sql
 ALTER SESSION SET CONTAINER=FREEPDB1;
+
 CREATE USER HR IDENTIFIED BY YOUR_STRONG_HR_PASSWORD;
+ALTER USER HR ACCOUNT UNLOCK;
 GRANT CONNECT, RESOURCE, CREATE VIEW TO HR;
 ALTER USER HR QUOTA UNLIMITED ON USERS;
+```
+
+If HR already exists, use:
+
+```sql
+ALTER USER HR IDENTIFIED BY YOUR_STRONG_HR_PASSWORD;
+ALTER USER HR ACCOUNT UNLOCK;
+```
+
+Then:
+
+```sql
 EXIT;
 ```
 
 > [!WARNING]
-> If quota is missing, account creation can fail with `ORA-01950: insufficient quota on tablespace USERS`.
+> Missing quota can cause `ORA-01950: insufficient quota on tablespace USERS` during object/account creation.
 
-### 7) Prepare and import `OwnChatDB.sql` safely
+### 8) SQL*Plus paste pitfalls and recovery
 
-- Use schema creation statements from `OwnChatDB.sql`.
-- If preserving existing data, remove destructive reset statements (`DELETE`, `DROP`, full reset blocks).
-- Keep schema definitions and constraints (including `ON DELETE CASCADE`)—these are not executable delete operations by themselves.
+- Do **not** paste `SQL>` prompts.
+- Enter commands as plain SQL, one statement at a time.
+- If paste breaks command buffer, use `Ctrl+C`, then run:
+
+```sql
+CLEAR BUFFER;
+```
+
+### 9) Schema import safety (`OwnChatDB.sql`)
+
+- Back up your SQL file before editing:
+
+```bash
+cp /path/to/OwnChatDB.sql /path/to/OwnChatDB.sql.bak
+```
+
+- `FREEPDB1` is required for Oracle Free. Do not use old `xe` JDBC/service naming.
+- If preserving existing data, remove executable destructive reset statements (`DELETE`, `DROP`, reset blocks).
+- Do **not** remove safe relational constraints such as `ON DELETE CASCADE`.
+- Import once carefully; do not rerun blindly after objects already exist.
 
 Import:
 
@@ -245,7 +310,7 @@ Import:
 sqlplus hr/YOUR_STRONG_HR_PASSWORD@//localhost:1521/FREEPDB1 @/path/to/OwnChatDB.sql
 ```
 
-If a trigger shows compile warnings, investigate/fix it if related features fail:
+### 10) Trigger compile warnings check
 
 ```bash
 sqlplus hr/YOUR_STRONG_HR_PASSWORD@//localhost:1521/FREEPDB1
@@ -261,36 +326,44 @@ FROM user_errors
 ORDER BY name, sequence;
 ```
 
-### 8) Update JDBC URL, compile, and start OwnChat server
+### 11) OwnChat server compile/start/verify
 
-In `ServerL.java`, use `FREEPDB1` service format instead of old XE format:
+Use `FREEPDB1` JDBC URL format in server code/config:
 
-- Old: `jdbc:oracle:thin:@localhost:1521:xe`
-- New: `jdbc:oracle:thin:@//localhost:1521/FREEPDB1`
+- `jdbc:oracle:thin:@//localhost:1521/FREEPDB1`
 
 Compile and run:
 
 ```bash
-javac -cp ojdbc17.jar:. ServerL.java
-nohup env DB_USER='hr' DB_PASSWORD='YOUR_STRONG_HR_PASSWORD' \
+javac -cp ojdbc17.jar:. ServerL.java clientSession.java
+nohup env DB_USER='HR' DB_PASSWORD='YOUR_STRONG_HR_PASSWORD' \
 java -cp ojdbc17.jar:. ServerL > ~/ownchat.log 2>&1 < /dev/null &
 ```
 
 Verify:
 
 ```bash
-pgrep -af ServerL
-tail -n 50 ~/ownchat.log
+ps -ef | grep '[S]erverL'
 ss -ltnp | grep 4567
+tail -n 50 ~/ownchat.log
 ```
 
-### 9) Configure systemd so server auto-starts after VM reboot
+If you get `java.net.BindException: Address already in use`, stop old instance and keep only one server process:
 
-Avoid hardcoding secrets in the service file. Put credentials in a root-protected env file.
+```bash
+pgrep -af ServerL
+pkill -f 'java -cp ojdbc17.jar:. ServerL'
+```
+
+If Oracle connection is refused, database is likely still starting; wait for healthy status in `docker ps`.
+
+### 12) systemd service (recommended for restart recovery)
+
+Store credentials in protected env file (avoid putting secrets in README/service body in real deployments):
 
 ```bash
 sudo tee /etc/ownchat.env > /dev/null <<'EOF'
-DB_USER=hr
+DB_USER=HR
 DB_PASSWORD=YOUR_STRONG_HR_PASSWORD
 EOF
 sudo chmod 600 /etc/ownchat.env
@@ -324,30 +397,32 @@ sudo apt install -y netcat-openbsd
 sudo systemctl daemon-reload
 sudo systemctl enable --now ownchat
 sudo systemctl status ownchat --no-pager
+journalctl -u ownchat -n 50 --no-pager
 ```
 
-### 10) Configure clients to use your VM and test from another network
+### 13) Client setup for cross-network chat
 
-- In OwnChat client, set server IP to `YOUR_PUBLIC_IP`
-- Use port `4567` if the UI asks for port
-- Test from a different network/device when possible
+- On each client machine, set server IP to `YOUR_PUBLIC_IP`.
+- Use port `4567` where client asks for port.
+- Do **not** use `localhost` from a different machine/network.
 
-Windows check:
+Windows reachability test:
 
 ```powershell
 Test-NetConnection YOUR_PUBLIC_IP -Port 4567
 ```
 
-`TcpTestSucceeded : True` indicates network reachability.
+Expect:
 
-> [!NOTE]
-> The client connects to **your own VM server**, not to a central OwnChat service.
+- `TcpTestSucceeded : True`
 
-### 11) Lifecycle and cost control
+Successful chat across different networks confirms: `client -> your VM OwnChat server -> your VM local Oracle database`.
 
-- Start/deallocate VM as needed to reduce compute cost.
-- Public IP may change after stop/deallocate unless you reserve a static IP.
-- After start/reboot, verify stack:
+### 14) Lifecycle, start/stop, and recovery operations
+
+To reduce compute cost, stop/deallocate VM when idle and start it when needed.
+
+After VM start, SSH in and verify:
 
 ```bash
 docker ps
@@ -355,9 +430,38 @@ sudo systemctl status ownchat --no-pager
 ss -ltnp | grep 4567
 ```
 
-### 12) Backup and retrieval guidance
+If VM was deallocated and public IP is dynamic, `YOUR_PUBLIC_IP` may change unless static/reserved.
 
-Recommended: Oracle Data Pump export of live schema data.
+> [!NOTE]
+> Shutting down your laptop does not necessarily stop the Azure VM.
+
+Safe stop/start examples (when managing app manually):
+
+```bash
+# stop app + db container manually
+pkill -f 'java -cp ojdbc17.jar:. ServerL' || true
+docker stop oracle-free
+
+# start db container manually
+docker start oracle-free
+```
+
+> [!WARNING]
+> If `ownchat.service` is enabled, do not start another manual `nohup java ... ServerL`; duplicate starts can cause bind conflicts.
+
+Operational checks:
+
+```bash
+df -h
+```
+
+Watch for disk pressure and OS notices like pending restart/reboot requirements.
+
+### 15) Backup/retrieval: live data vs schema SQL
+
+`OwnChatDB.sql` is schema/setup SQL, not a live-data backup.
+
+Concise Data Pump export/retrieval example:
 
 ```bash
 docker exec oracle-free mkdir -p /opt/oracle/dpump
@@ -382,21 +486,6 @@ docker cp oracle-free:/opt/oracle/dpump/ownchat_hr.dmp ~/ownchat_hr.dmp
 docker cp oracle-free:/opt/oracle/dpump/ownchat_hr.log ~/ownchat_hr.log
 ```
 
-At minimum, you can copy `OwnChatDB.sql`, but remember:
-
-- `OwnChatDB.sql` is schema/setup SQL
-- it does **not** contain live chat/account data
-
-### 13) Troubleshooting (common issues)
-
-- **Port `4567` already in use**: duplicate `ServerL` process.  
-  Check `pgrep -af ServerL`; stop old process before restarting.
-- **Oracle port refused**: container still starting.  
-  Wait for `DATABASE IS READY TO USE!` and `healthy`.
-- **JDBC mismatch (`xe` vs `FREEPDB1`)**: update URL to `jdbc:oracle:thin:@//localhost:1521/FREEPDB1`.
-- **`ORA-01950` quota error**: run `ALTER USER HR QUOTA UNLIMITED ON USERS;` in `FREEPDB1`.
-- **Client cannot connect from internet**: verify Azure NSG allows inbound TCP `4567`.
-- **Disk pressure on VM**: monitor with `df -h`; Oracle images/data need space.
 
 ## Important Points
 
