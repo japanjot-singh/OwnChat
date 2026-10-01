@@ -122,6 +122,10 @@ A Self-Hosted Chat Application for Desktops (client->Server->client) using Java 
 > [!IMPORTANT]
 > OwnChat stays self-hosted and decentralized. There is no shared central OwnChat server in this model.  
 > Each user/group/school/organization/team runs **its own** independent OwnChat server + Oracle database.
+>
+> Cloud-hosted deployment has been tested successfully (including Azure VM setup), but that testing only proves deployability.  
+> There is **no** public/shared OwnChat cloud instance provided by this project for general use.  
+> If you want cross-network chat, you must create and operate your **own** Azure VM (or another cloud VM), database, and OwnChat server.
 
 ### Architecture note
 
